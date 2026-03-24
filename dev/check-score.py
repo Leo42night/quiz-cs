@@ -47,3 +47,5 @@ def get_top_users():
 
 if __name__ == "__main__":
     get_top_users()
+    
+    # masukkan ke sheet
