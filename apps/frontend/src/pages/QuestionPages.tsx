@@ -18,6 +18,8 @@ import { DifficultyStars, TypeBadge } from "@/components/shared"
 import { Badge } from "@/components/ui/badge"
 import fireCelebration from "@/components/Confetty"
 
+import { TIME_LIMIT } from "@/constants"
+
 export default function QuestionPage() {
   const {
     user,
@@ -304,7 +306,7 @@ export default function QuestionPage() {
         <ol>
           <li>Materi terbagi atas BunJs, Tailwind, Git, ElysiaJs</li>
           <li>Tipe Quiz terbagi atas; Single answer, multi answer, exact code fill &amp; regex code fill</li>
-          <li>Limit waktu menjawab tiap soal 30 detik</li>
+          <li>Limit waktu menjawab tiap soal {TIME_LIMIT} detik</li>
           <li>Tekan tombol "Simpan Score" di kanan atas layar untuk menyimpan</li>
         </ol>
         <p className="text-sm text-muted-foreground">
