@@ -1,7 +1,7 @@
 import './App.css';
 import KelolaSoal from '@/kelola_soal/Index';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import QuestionPage from './pages/QuestionPages';
+import QuestionPage from '@/pages/QuestionPages';
 import MainLayout from '@/layouts/MainLayout';
 // import ViewQuestionPage from './pages/ViewQuestionPage';
 

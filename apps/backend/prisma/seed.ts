@@ -1,6 +1,6 @@
 import { prisma } from './db';
 import path from "path";
-import { formatToString } from '@/src/utils';
+import { formatToString } from './../src/utils';
 
 console.log("seed into DATABASE_URL...", process.env.DATABASE_URL);
 
