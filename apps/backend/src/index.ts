@@ -5,7 +5,7 @@ import { userRoute } from "./routes/user.route";
 import { questionRoute } from "./routes/question.route";
 import 'dotenv/config';
 import { prisma } from "@/prisma/db";
-
+// ok
 const isBrowserRequest = (request: Request): boolean => {
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
