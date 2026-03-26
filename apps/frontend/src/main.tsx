@@ -5,7 +5,9 @@ import App from './App.tsx'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { Toaster } from "@/components/ui/sonner"
 import { MainProvider } from './context/MainContext.tsx'
+import { checkAndMigrateStorage } from './lib/storageManage.ts'
 
+checkAndMigrateStorage();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

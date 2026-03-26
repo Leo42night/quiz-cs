@@ -45,7 +45,7 @@ export interface AnsweredLog {
   question_id: number;
 }
 
-export const STORAGE_KEY = "quiz_questions_v2";
+export const STORAGE_KEY = "quiz_questions";
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export function loadQuestions(): Question[] {

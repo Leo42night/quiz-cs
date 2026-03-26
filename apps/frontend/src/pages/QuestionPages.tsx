@@ -35,10 +35,10 @@ export default function QuestionPage() {
   const [loading, setLoading] = useState(false)
 
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>(
-    () => safeParse(localStorage.getItem("answered_question_ids_v2"), [])
+    () => safeParse(localStorage.getItem("answered_question_ids"), [])
   );
   const [notAnsweredQuestionIds, setNotAnsweredQuestionIds] = useState<number[]>(
-    () => safeParse(localStorage.getItem("not_answered_question_ids_v2"), [])
+    () => safeParse(localStorage.getItem("not_answered_question_ids"), [])
   );
 
   // --- START: handle paksa periksa answer ketika timer habis
@@ -96,7 +96,7 @@ export default function QuestionPage() {
 
     const userQuestionsIds: number[] = await res.json();
     setAnsweredQuestionIds(userQuestionsIds);
-    localStorage.setItem("answered_question_ids_v2", JSON.stringify(userQuestionsIds));
+    localStorage.setItem("answered_question_ids", JSON.stringify(userQuestionsIds));
 
     // Hitung soal yang belum dijawab
     if (userQuestionsIds.length < questions.length) {
@@ -104,11 +104,11 @@ export default function QuestionPage() {
         .filter((q) => !userQuestionsIds.includes(q.id))
         .map((q) => q.id);
       setNotAnsweredQuestionIds(unanswered);
-      localStorage.setItem("not_answered_question_ids_v2", JSON.stringify(unanswered));
+      localStorage.setItem("not_answered_question_ids", JSON.stringify(unanswered));
     } else {
       // Semua soal sudah dijawab
       setNotAnsweredQuestionIds([]);
-      localStorage.setItem("not_answered_question_ids_v2", JSON.stringify([]));
+      localStorage.setItem("not_answered_question_ids", JSON.stringify([]));
     }
   };
 
@@ -167,7 +167,7 @@ export default function QuestionPage() {
 
     // ✅ Hitung updated di luar updater, lalu panggil setState dan getNextQuestion terpisah
     const updated = notAnsweredQuestionIds.filter((id) => id !== qId);
-    localStorage.setItem("not_answered_question_ids_v2", JSON.stringify(updated));
+    localStorage.setItem("not_answered_question_ids", JSON.stringify(updated));
     setNotAnsweredQuestionIds(updated);
     getNextQuestion(updated); // aman — dipanggil di event handler, bukan di updater
   };

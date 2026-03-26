@@ -44,7 +44,7 @@ const MainContext = createContext<MainContextType | undefined>(undefined);
 
 export function MainProvider({ children }: { children: ReactNode }) {
   const [questions, setQuestions] = useState<Question[]>(() => {
-    const raw = safeParse(localStorage.getItem("questions_v2"), []);
+    const raw = safeParse(localStorage.getItem("questions"), []);
     return raw.map(normalizeQuestion);
   });
 
@@ -54,7 +54,7 @@ export function MainProvider({ children }: { children: ReactNode }) {
   const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
   const [timeLimit, setTimeLimit] = useState(TIME_LIMIT); // Waktu limit dalam detik
   const [newAnsweredQuestionIds, setNewAnsweredQuestionIds] = useState<number[]>(
-    () => safeParse(localStorage.getItem("new_answered_question_ids_v2"), [])
+    () => safeParse(localStorage.getItem("new_answered_question_ids"), [])
   );
   const [isScoreMax, setIsScoreMax] = useState(false);
 
@@ -63,13 +63,13 @@ export function MainProvider({ children }: { children: ReactNode }) {
 
   // Sync newAnsweredQuestionIds ke localStorage tiap berubah
   useEffect(() => {
-    localStorage.setItem("new_answered_question_ids_v2", JSON.stringify(newAnsweredQuestionIds));
+    localStorage.setItem("new_answered_question_ids", JSON.stringify(newAnsweredQuestionIds));
   }, [newAnsweredQuestionIds]);
 
   // Fetch questions & users jika belum ada di localStorage
   useEffect(() => {
     const init = async () => {
-      if (localStorage.getItem("questions_v2")) return;
+      if (localStorage.getItem("questions")) return;
       try {
         if (!BACKEND_URL) throw new Error("BACKEND_URL is undefined");
 
@@ -84,7 +84,7 @@ export function MainProvider({ children }: { children: ReactNode }) {
         const normalized = safeParse(decodeQuestions, []).map(normalizeQuestion);
         // console.log("Normalized questions:", normalized);
         setQuestions(normalized);
-        localStorage.setItem("questions_v2", JSON.stringify(normalized));
+        localStorage.setItem("questions", JSON.stringify(normalized));
 
       } catch (err) {
         toast.error(`Gagal load questions: ${err}`);
@@ -191,9 +191,9 @@ export function MainProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUserState(null);
     localStorage.removeItem("user");
-    localStorage.removeItem("answered_question_ids_v2");
-    localStorage.removeItem("not_answered_question_ids_v2");
-    localStorage.removeItem("new_answered_question_ids_v2");
+    localStorage.removeItem("answered_question_ids");
+    localStorage.removeItem("not_answered_question_ids");
+    localStorage.removeItem("new_answered_question_ids");
   };
 
   // Tambah di dalam MainProvider

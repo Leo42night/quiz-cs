@@ -34,3 +34,6 @@ export const TYPE_COLORS: Record<number, string> = {
 };
 
 export const TIME_LIMIT = 20;
+
+// src/config/storageVersion.ts
+export const STORAGE_VERSION = "1.0.0"; // Ubah ini setiap deploy yang perlu reset
