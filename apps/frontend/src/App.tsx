@@ -15,7 +15,7 @@ const router = createBrowserRouter([
         element: <QuestionPage />,
       },
       {
-        path: "kelola-soal", // Ini akan muncul di "/kelola-soal"
+        path: "kelola-soal",
         element: <KelolaSoal />,
       },
       // {

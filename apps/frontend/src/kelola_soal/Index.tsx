@@ -27,6 +27,8 @@ import FormTipe4 from "@/kelola_soal/FormTipe4";
 import DaftarSoal from "@/kelola_soal/DaftarSoal";
 import type { Question, QuestionType } from "@/types";
 import { loadQuestions, saveQuestions } from "@/lib/utils";
+import { Navigate, useSearchParams } from "react-router-dom";
+import { BACKEND_URL, SECRET_KEY } from "@/constants";
 // ─── Type selector cards ───────────────────────────────────────────────────────
 
 const TYPE_OPTIONS = [
@@ -167,10 +169,19 @@ function ExportTab({
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const [searchParams] = useSearchParams();
   const [questions, setQuestions] = useState<Question[]>(loadQuestions);
   const [selectedType, setSelectedType] = useState<QuestionType>(1);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-  const [baseUrl, setBaseUrl] = useState("http://localhost:3000");
+  const [baseUrl, setBaseUrl] = useState(BACKEND_URL || "http://localhost:3000");
+
+  // Ambil nilai dari query param 'key'
+  const accessKey = searchParams.get("key");
+
+  // Validasi: Jika key tidak ada atau salah, tendang balik ke home
+  if (accessKey !== SECRET_KEY) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleSave = useCallback(
     (data: Omit<Question, "id">) => {

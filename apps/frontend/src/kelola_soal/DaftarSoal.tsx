@@ -40,7 +40,7 @@ import type {
   QuestionType
 } from "@/types";
 import { saveQuestions } from "@/types";
-import { HL_LANGUAGES, LANGUAGES, CATEGORIES, TYPE_LABELS } from "@/constants";
+import { HL_LANGUAGES, LANGUAGES, CATEGORIES, TYPE_LABELS, BACKEND_URL } from "@/constants";
 
 // ─── curl builder ─────────────────────────────────────────────────────────────
 
@@ -178,7 +178,7 @@ export default function DaftarSoal({
   questions,
   onQuestionsChange,
   onEdit,
-  baseUrl = "http://localhost:3000",
+  baseUrl = BACKEND_URL || "http://localhost:3000",
 }: Props) {
   const [filterType, setFilterType] = useState("");
   const [filterCat, setFilterCat] = useState("");

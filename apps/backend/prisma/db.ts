@@ -3,7 +3,7 @@ import { PrismaClient } from "../src/generated/prisma/client";
 
 const adapter = new PrismaLibSql({
   url: process.env.DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN,
+  authToken: process.env.DB_AUTH_TOKEN,
 });
 
 export const prisma = new PrismaClient({ adapter });

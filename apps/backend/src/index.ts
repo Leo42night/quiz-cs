@@ -58,7 +58,7 @@ const app = new Elysia()
   }));
 
 if (process.env.NODE_ENV != "production") {
-  app.listen(process.env.PORT ?? 3000);
+  app.listen(3000);
   console.log(`🦊 Backend → http://localhost:3000`);
   console.log(`🦊 TEST_URL: ${process.env.TEST_URL}`);
   console.log(`🦊 DATABASE_URL: ${process.env.DATABASE_URL}`);

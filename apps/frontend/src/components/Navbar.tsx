@@ -20,6 +20,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Save, Timer } from "lucide-react";
 import { BACKEND_URL } from "@/types";
+import { TIME_LIMIT } from "@/constants";
 
 export function Navbar() {
   const {
@@ -98,8 +99,8 @@ export function Navbar() {
 
   // Warna timer berubah sesuai sisa waktu
   const timerColor =
-    timeLimit <= 10 ? "text-red-500" :
-      timeLimit <= 20 ? "text-yellow-500" :
+    timeLimit <= Math.floor(TIME_LIMIT / 3) ? "text-red-500" :
+      timeLimit <= Math.floor(TIME_LIMIT * 2 / 3) ? "text-yellow-500" :
         "text-green-500";
 
   return (
@@ -108,11 +109,15 @@ export function Navbar() {
         {/* Logo */}
         <div className="flex items-center gap-2 font-bold text-xl">
           <span className="bg-primary text-primary-foreground px-2 py-1 rounded-md">PPWL</span>
-          2026
+          <span className="hidden md:inline">2026</span>
         </div>
 
         {/* Timer */}
-        <div className="hidden md:flex items-center gap-1 text-sm font-medium min-w-15 justify-center">
+        <div className="flex items-center gap-1 text-sm font-medium min-w-15 justify-center">
+          <>
+            <Timer className={`w-4 h-4 ${timerColor}`} />
+            <span className={`font-mono font-bold text-lg ${timerColor}`}>{timeLimit}s</span>
+          </>
           {activeQuestion && (
             <>
               <Timer className={`w-4 h-4 ${timerColor}`} />
