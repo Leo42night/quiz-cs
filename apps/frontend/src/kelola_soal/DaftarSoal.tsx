@@ -270,7 +270,7 @@ export default function DaftarSoal({
               placeholder="🔍 Cari pertanyaan..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 min-w-[180px] h-8 text-sm"
+              className="flex-1 min-w-45 h-8 text-sm"
             />
             {[
               {

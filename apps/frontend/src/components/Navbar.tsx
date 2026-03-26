@@ -114,10 +114,6 @@ export function Navbar() {
 
         {/* Timer */}
         <div className="flex items-center gap-1 text-sm font-medium min-w-15 justify-center">
-          <>
-            <Timer className={`w-4 h-4 ${timerColor}`} />
-            <span className={`font-mono font-bold text-lg ${timerColor}`}>{timeLimit}s</span>
-          </>
           {activeQuestion && (
             <>
               <Timer className={`w-4 h-4 ${timerColor}`} />
