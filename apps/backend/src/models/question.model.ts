@@ -1,5 +1,5 @@
 // models/question.model.ts
-import { prisma } from "@/prisma/db";
+import { prisma } from "./../../prisma/db";
 import { isJsonArray, type Question } from "../utils";
 import type { QuestionType } from "../types";
 

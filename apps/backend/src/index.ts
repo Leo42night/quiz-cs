@@ -3,7 +3,7 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { userRoute } from "./routes/user.route";
 import { questionRoute } from "./routes/question.route";
-import { prisma } from "@/prisma/db";
+import { prisma } from "./../prisma/db";
 // ok
 const isBrowserRequest = (request: Request): boolean => {
   const origin = request.headers.get("origin");

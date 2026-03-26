@@ -1,5 +1,5 @@
 // models/user_questions.model.ts
-import { prisma } from "@/prisma/db";
+import { prisma } from "./../../prisma/db";
 
 export const UserQuestionsModel = {
   async findIdsByUser(user_id: number) {

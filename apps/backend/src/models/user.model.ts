@@ -1,4 +1,4 @@
-import { prisma } from "@/prisma/db";
+import { prisma } from "./../../prisma/db";
 
 export const UserModel = {
   async findByEmail(email: string) {
