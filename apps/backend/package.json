@@ -6,14 +6,13 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun --env-file=.env.production src/index.ts",
-    "db:generate": "bun prisma generate",
-    "db:push": "bun --env-file=.env.local x --bun prisma db push",
-    "db:reset": "bun --env-file=.env.local x --bun prisma migrate reset --force",
-    "db:sql": "bunx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script > baseline.sql",
-    "db:seed": "bun --env-file=.env.prod prisma/seed.ts",
-    "db:dev-seed": "bun prisma/seed.ts",
     "build": "prisma generate && tsdown",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "dev:turso": "bun --env-file=.env.production src/index.ts",
+    "prod:sql": "bunx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script > baseline.sql",
+    "prod:check-env": "bun --env-file=.env.production -e \"console.log(process.env.DATABASE_URL)\"",
+    "prod:migrate": "bun --env-file=.env.production prisma/migrate.ts",
+    "prod:seed": "bun --env-file=.env.production prisma/seed.ts"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.1",

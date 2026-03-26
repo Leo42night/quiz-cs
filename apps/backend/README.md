@@ -20,6 +20,9 @@ Jalankan [turso CLI](https://docs.turso.tech/cli/introduction) DB production (pa
 sqlite3 db.sqlite .dump > data.sql # export to sql
 turso db shell ppwl-2026 < baseline.sql # reset ulang
 turso db shell ppwl-2026 < data.sql # push data baru
+
+# atau run SQL file
+bun prisma/migrate.ts # membaca file SQL dan run ke production database
 ```
 
 # Backend to Vercel
