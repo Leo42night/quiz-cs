@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     // Environment setup & latest features
+    "baseUrl": ".",
+    "paths": {
+      "@db/*": ["./src/generated/prisma/*"]
+    },
     "lib": [
       "ESNext"
     ],

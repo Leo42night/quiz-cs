@@ -5,7 +5,7 @@ import { Cipher } from 'shared'; // issue monorepo vercel elysia
 // import { Cipher } from "../utils";
 import { SEED } from "../utils";
 import type { Question } from "../utils";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../generated/prisma/client";
 
 export const questionRoute = new Elysia({ prefix: "/questions" })
   // security agak sulit (tapi masih bisa diakali)

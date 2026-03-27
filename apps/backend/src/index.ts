@@ -25,20 +25,23 @@ const app = new Elysia()
   .use(cors({ origin: [process.env.FRONTEND_URL ?? "", process.env.TEST_URL ?? ""] }))
   .use([swagger()])
   .onRequest(({ request, set }) => {
-    const origin = request.headers.get("origin");
-    const frontendUrl = process.env.FRONTEND_URL ?? "";
+    const url = new URL(request.url);
 
-    // Jika request dari FRONTEND_URL → langsung izinkan
-    if (origin && origin === frontendUrl) return;
-
-    // Jika akses dari browser langsung → wajib ada ?key=
-    if (isBrowserRequest(request)) {
-      const url = new URL(request.url);
-      const key = url.searchParams.get("key");
-
-      if (!key || key !== process.env.API_KEY) {
-        set.status = 401;
-        return { message: "Unauthorized: missing or invalid key" };
+    if(url.pathname.startsWith("/api")) {
+      const origin = request.headers.get("origin");
+      const frontendUrl = process.env.FRONTEND_URL ?? "";
+  
+      // Jika request dari FRONTEND_URL → langsung izinkan
+      if (origin && origin === frontendUrl) return;
+  
+      // Jika akses dari browser langsung → wajib ada ?key=
+      if (isBrowserRequest(request)) {
+        const key = url.searchParams.get("key");
+  
+        if (!key || key !== process.env.API_KEY) {
+          set.status = 401;
+          return { message: "Unauthorized: missing or invalid key" };
+        }
       }
     }
   })
