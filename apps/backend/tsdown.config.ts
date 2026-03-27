@@ -1,13 +1,10 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  external: [
-    '@prisma/client',
-    '.prisma/client',
-    '@prisma/adapter-libsql',
-    '@libsql/client'
-  ],
   deps: {
-    alwaysBundle: ['shared']
+    // bundling file diluar root folder proyek (vercel -> apps/backend)
+    alwaysBundle: ['shared'],
+    // Tandai path generated sebagai external agar tetap dicari di filesystem saat runtime
+    neverBundle: ['../src/generated/prisma/client']
   }
 })

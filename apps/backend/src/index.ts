@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
@@ -54,7 +57,18 @@ const app = new Elysia()
   .get("/", () => ({
     data: { status: "ok" },
     message: "server running",
-  }));
+  }))
+  // Endpoint test di Elysia atau function utama
+  .get("/debug-prisma", () => {
+    const generatedPath = path.resolve(__dirname, "../src/generated/prisma/client");
+    const exists = fs.existsSync(generatedPath);
+
+    return {
+      path: generatedPath,
+      exists: exists,
+      files: exists ? fs.readdirSync(generatedPath) : []
+    };
+  });
 
 if (process.env.NODE_ENV != "production") {
   app.listen(3000);
