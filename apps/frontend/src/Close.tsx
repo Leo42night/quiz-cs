@@ -12,7 +12,7 @@ function ClosedPage() {
     }}>
       <h2>
         Fase 1 (Minggu 1-4) berakhir,<br />
-        silakan tunggu fase 2 dibuka
+        Fase 2 akan dibuka segera
       </h2>
     </div>
   );
