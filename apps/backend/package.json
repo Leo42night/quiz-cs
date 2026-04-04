@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "bun --watch src/index.ts",
+    "devt": "bun run dev:turso",
     "start": "bun dist/index.mjs",
     "build": "prisma generate && tsdown",
     "postinstall": "prisma generate",

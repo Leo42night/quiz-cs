@@ -1,5 +1,5 @@
 import type { Question } from "shared"
-import { isJsonArray } from "./utils";
+import { isJsonArray } from "shared";
 
 export async function submitAnswer(
   question: Question,

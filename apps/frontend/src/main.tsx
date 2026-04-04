@@ -1,7 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './Close.tsx'
+// import App from './Close.tsx'
+import App from './App.tsx'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { Toaster } from "@/components/ui/sonner"
 import { MainProvider } from './context/MainContext.tsx'

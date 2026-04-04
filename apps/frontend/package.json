@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "bunx kill-port 5173 && vite",
+    "devt": "bun run dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

@@ -22,7 +22,7 @@ const isBrowserRequest = (request: Request): boolean => {
 };
 
 const app = new Elysia()
-  .use(cors({ origin: [process.env.FRONTEND_URL ?? "", process.env.TEST_URL ?? ""] }))
+  .use(cors({ origin: [process.env.FRONTEND_URL ?? ""] }))
   .use([swagger()])
   .onRequest(({ request, set }) => {
     const url = new URL(request.url);
@@ -76,7 +76,6 @@ const app = new Elysia()
 if (process.env.NODE_ENV != "production") {
   app.listen(3000);
   console.log(`🦊 Backend → http://localhost:3000`);
-  console.log(`🦊 TEST_URL: ${process.env.TEST_URL}`);
   console.log(`🦊 DATABASE_URL: ${process.env.DATABASE_URL}`);
 }
 

@@ -47,3 +47,4 @@ soal.md
 */**/.env.production
 */**/.sql
 */**/data-*.json
+apps/backend/dev.db

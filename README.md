@@ -5,3 +5,5 @@ cd <path_sub_workspace> && bun add -D <package_name> # -D jika ingin save di dev
 
 ```
 
+## Job
+- v1.0.0: score validation di backend, CRUD questions

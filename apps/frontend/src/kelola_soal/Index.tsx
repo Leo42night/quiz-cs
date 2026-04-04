@@ -9,7 +9,7 @@
  * State soal di localStorage melalui helpers di types.ts.
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { BookOpen, PlusCircle, Terminal } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +26,7 @@ import FormTipe3 from "@/kelola_soal/FormTipe3";
 import FormTipe4 from "@/kelola_soal/FormTipe4";
 import DaftarSoal from "@/kelola_soal/DaftarSoal";
 import type { Question, QuestionType } from "@/types";
-import { loadQuestions, saveQuestions } from "@/lib/utils";
+import { saveQuestions, syncQuestions } from "@/lib/utils";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { BACKEND_URL, SECRET_KEY } from "@/constants";
 // ─── Type selector cards ───────────────────────────────────────────────────────
@@ -170,10 +170,14 @@ function ExportTab({
 
 export default function App() {
   const [searchParams] = useSearchParams();
-  const [questions, setQuestions] = useState<Question[]>(loadQuestions);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedType, setSelectedType] = useState<QuestionType>(1);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [baseUrl, setBaseUrl] = useState(BACKEND_URL || "http://localhost:3000");
+
+  useEffect(() => {
+    syncQuestions(setQuestions);
+  }, []);
 
   // Ambil nilai dari query param 'key'
   const accessKey = searchParams.get("key");

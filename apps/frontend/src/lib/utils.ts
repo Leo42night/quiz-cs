@@ -1,6 +1,16 @@
-import { STORAGE_KEY, type Question } from "shared";
+import { Cipher, STORAGE_KEY, type Question } from "shared";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { toast } from "sonner";
+
+function normalizeQuestion(q: any): Question {
+  const answer =
+    (q.type === 1 || q.type === 2) && typeof q.answer === "string"
+      ? JSON.parse(q.answer)
+      : q.answer;
+
+  return { ...q, answer };
+}
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -11,6 +21,42 @@ export function loadQuestions(): Question[] {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
   } catch {
     return [];
+  }
+}
+
+export async function syncQuestions(
+  setQuestions: (qs: Question[]) => void
+): Promise<void> {
+  // 1. Cek local storage dulu, kalau sudah ada (dan tidak kosong), 
+  // ambil dari sana saja supaya cepat (Sesuai logika yang kamu minta)
+  const localData = localStorage.getItem("questions");
+  if (localData && localData !== "[]") {
+    const parsed = JSON.parse(localData).map(normalizeQuestion);
+    setQuestions(parsed);
+    return; 
+  }
+
+  // 2. Jika tidak ada di local storage, ambil dari backend
+  try {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Pastikan ini terdefinisi
+    if (!BACKEND_URL) throw new Error("BACKEND_URL is undefined");
+
+    const resQ = await fetch(`${BACKEND_URL}/api/questions`);
+    if (!resQ.ok) throw new Error("Failed to fetch questions");
+
+    const fetchedQ = await resQ.json();
+    
+    // 3. Dekripsi dan Normalisasi
+    const decodeQuestions = Cipher.decode(fetchedQ.data, import.meta.env.VITE_SEED);
+    const normalized = safeParse(decodeQuestions, []).map(normalizeQuestion);
+
+    // 4. Update State dan LocalStorage
+    setQuestions(normalized);
+    localStorage.setItem("questions", JSON.stringify(normalized));
+
+  } catch (err) {
+    toast.error(`Gagal load questions: ${err}`);
+    console.error("Initialization failed", err);
   }
 }
 
@@ -53,24 +99,7 @@ export function safeParse<T>(value: string | null, fallback: T): T {
 /**
  * Mengecek apakah data adalah string yang berisi array JSON
  */
-export const isJsonArray = (data: unknown): data is string => {
   // 1. Cek apakah tipe datanya string
-  if (typeof data !== 'string') return false;
-
-  // 2. Cek sekilas apakah diawali '[' dan diakhiri ']' untuk efisiensi
-  const trimmed = data.trim();
-  if (!trimmed.startsWith('[') || !trimmed.endsWith(']')) return false;
-
-  try {
-    // 3. Coba parse. Jika berhasil dan hasilnya array, return true
-    const result = JSON.parse(trimmed);
-    return Array.isArray(result);
-  } catch (e) {
-    // Jika gagal di-parse, berarti bukan JSON array yang valid
-    return false;
-  }
-};
-
 // // --- Test Cases ---
 // console.log(isJsonArray(1));                         // false
 // console.log(isJsonArray("Halo"));                    // false

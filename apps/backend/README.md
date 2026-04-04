@@ -1,31 +1,46 @@
-# deploy database
-Development (ingin ada history migrasi, jika ingin berganti)
+# Backend
+Konfigurasi & dokumentasi backend.
+
+## Database
+### Development
+Generate/Reset file database & sql migration, jika belum ada `prisma/migrations/`.
 ```bash
-bunx prisma migrate dev --name init
+bunx --bun prisma migrate dev --name init
+```
+Generate code prisma client API (`src/generated/prisma`), Diperlukan ketika fresh clone atau ada perubahan pada `schema.prisma`
+```bash
+bunx --bun prisma generate
+```
+```bash
+# Memasukkan data baru dari file *.json
+bun prisma/seed.ts
+# Menjalankan query dari file *.sql
+bun prisma/migrate.ts
+# Export database `dev.db` ke file `data.sql` 
+sqlite3 dev.db .dump > data.sql
 ```
 
-Production: langsung ubah skema database tanpa riwayat migrasi.
+### Production 
+Sekarang menggunakan turso database.
 ```bash
-bunx prisma db push
-bunx prisma db execute --file file.sql # eksekusi query
-bun prisma/seed.ts # seeder ulang
-sqlite3 db.sqlite .dump > data.sql # export to sql
-bunx prisma db execute --file file.sql && bun prisma/seed.ts && sqlite3 db.sqlite .dump > data.sql
-# Jika ada perubahan `schema.prisma`, jalankan:
-bunx prisma generate
+# Run script untuk jalankan server backend koneksi ke db turso
+bun dev:turso
+
+# `seed.ts` dapat digunakna untuk memasukkan data
+# `migrate.ts` dapat digunakan untuk run query (CRUD) ke database
 ```
 
-Jalankan [turso CLI](https://docs.turso.tech/cli/introduction) DB production (pakai wsl jika di windows):
-```bash
-sqlite3 db.sqlite .dump > data.sql # export to sql
-turso db shell ppwl-2026 < baseline.sql # reset ulang
-turso db shell ppwl-2026 < data.sql # push data baru
+Jalankan [turso CLI](https://docs.turso.tech/cli/introduction) (OS Windows pakai WSL):
 
-# atau run SQL file
-bun prisma/migrate.ts # membaca file SQL dan run ke production database
+```bash
+# sebelunya: login dan tampilkan list database
+## wsl: login headless
+turso auth login --headless
+# .dump command to generate all the SQL instructions (DDL and Inserts).
+turso db shell ppwl-2026 .dump > data.sql
 ```
 
-# Backend to Vercel
+## Backend to Vercel
 Deploy dari Web Vercel: buat proyek yang terkoneksi git repo. Beberapa setting yang diperlukan sebelum itu. siapkan file ini di folder backend.
 
 1. **tsdown.config.ts**

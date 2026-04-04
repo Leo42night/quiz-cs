@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -24,9 +19,9 @@ model users {
 
 model questions {
   id             Int              @id @default(autoincrement())
-  category       Int // 1. BunJS, 2. TailwindCSS, 3. Git & Github, 4. ElysiaJS 
-  language       Int // 1. js/ts, 2. css, 3. Bash, 4. HTML 
-  type           Int // 1. quiz single answer, 2. quiz multi answer, 3. code fill (exact), 4. code fill (regex) 
+  category       Int
+  language       Int
+  type           Int
   question       String
   answer         String
   correct_answer String
@@ -35,11 +30,11 @@ model questions {
   user_questions user_questions[]
 }
 
-model user_questions { // pertanyaan yang berhasil di jawab
+model user_questions {
   user_id     Int
   question_id Int
-  user        users     @relation(fields: [user_id], references: [id])
   question    questions @relation(fields: [question_id], references: [id])
+  user        users     @relation(fields: [user_id], references: [id])
 
-  @@id([user_id, question_id]) // composite primary key
+  @@id([user_id, question_id])
 }
