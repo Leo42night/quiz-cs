@@ -11,8 +11,8 @@ function ClosedPage() {
       padding: "20px"
     }}>
       <h2>
-        Fase 1 (Minggu 1-4) berakhir,<br />
-        Fase 2 akan dibuka segera
+        Fase 2 (Minggu 5-8) berakhir,<br />
+        Fase 3 akan dibuka Segera
       </h2>
     </div>
   );
