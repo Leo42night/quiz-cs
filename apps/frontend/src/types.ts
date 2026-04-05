@@ -3,7 +3,7 @@ export type QuestionType = 1 | 2 | 3 | 4;
 export interface BaseQuestion {
   id: number;
   type: QuestionType;
-  category: 1 | 2 | 3 | 4;
+  category: 1 | 2 | 3 | 4 | 5;
   language: 1 | 2 | 3 | 4;
   difficulty: 1 | 2 | 3;
   points: number;

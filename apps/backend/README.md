@@ -36,8 +36,10 @@ Jalankan [turso CLI](https://docs.turso.tech/cli/introduction) (OS Windows pakai
 # sebelunya: login dan tampilkan list database
 ## wsl: login headless
 turso auth login --headless
-# .dump command to generate all the SQL instructions (DDL and Inserts).
+# (ppwl-2026 is DB Name) .dump command to generate all the SQL instructions (DDL and Inserts).
 turso db shell ppwl-2026 .dump > data.sql
+# masukkna data dari sql ke database
+turso db shell ppwl-2026 < data.sql
 ```
 
 ## Backend to Vercel

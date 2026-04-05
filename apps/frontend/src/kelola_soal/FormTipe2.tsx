@@ -40,10 +40,10 @@ function makeDefault(): Omit<QuizMultiQuestion, "id"> {
   };
 }
 
-function parseCorrectAnswer(val: unknown): string[] {
-  if (Array.isArray(val)) return val;
+function parseCorrectAnswer(val: unknown): number[] {
+  if (Array.isArray(val)) return val.map(Number);
   if (typeof val === "string") {
-    try { return JSON.parse(val); } catch { return []; }
+    try { return (JSON.parse(val) as unknown[]).map(Number); } catch { return []; }
   }
   return [];
 }
@@ -71,7 +71,7 @@ export default function FormTipe2({ initial, onSave, onReady, onCancel }: Props)
     }
     return makeDefault();
   });
-  
+
   useEffect(() => {
     onReady?.(() => setForm(makeDefault()));
   }, []);
@@ -88,9 +88,10 @@ export default function FormTipe2({ initial, onSave, onReady, onCancel }: Props)
 
   const toggleCorrect = (idx: number) =>
     setForm((f) => {
-      const correct_answer = f.correct_answer.includes(idx)
-        ? f.correct_answer.filter((i) => i !== idx)
-        : [...f.correct_answer, idx].sort((a, b) => a - b);
+      const correct_answer_arr = f.correct_answer as number[];
+      const correct_answer: number[] = correct_answer_arr.includes(idx)
+        ? correct_answer_arr.filter((i) => i !== idx)
+        : [...correct_answer_arr, idx].sort((a, b) => a - b);
       return { ...f, correct_answer };
     });
 
@@ -102,7 +103,7 @@ export default function FormTipe2({ initial, onSave, onReady, onCancel }: Props)
   const removeOption = (idx: number) =>
     setForm((f) => {
       const answer = f.answer.filter((_, i) => i !== idx);
-      const correct_answer = f.correct_answer
+      const correct_answer: number[] = (f.correct_answer as number[])
         .filter((i) => i !== idx)
         .map((i) => (i > idx ? i - 1 : i));
       return { ...f, answer, correct_answer };

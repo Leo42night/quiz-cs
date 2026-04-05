@@ -1,5 +1,5 @@
 import './App.css';
-// import KelolaSoal from '@/kelola_soal/Index';
+import KelolaSoal from '@/kelola_soal/Index';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import QuestionPage from '@/pages/QuestionPages';
 import MainLayout from '@/layouts/MainLayout';
@@ -19,11 +19,11 @@ const router = createBrowserRouter([
       //   element: <ViewQuestionPage />,
       // },
     ],
+  },
+  {
+    path: "kelola-soal",
+    element: <KelolaSoal />,
   }
-  // {
-  //   path: "kelola-soal",
-  //   element: <KelolaSoal />,
-  // }
 ]);
 
 function App() {
