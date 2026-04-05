@@ -1,8 +1,9 @@
-import { Cipher, STORAGE_KEY, type Question } from "shared";
+import { Cipher, type Question } from "shared";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { toast } from "sonner";
 import { BACKEND_URL } from "@/constants";
+import { STORAGE_KEY } from "@/types";
 
 function normalizeQuestion(q: any): Question {
   const answer =

@@ -18,7 +18,7 @@ export type QuestionType = 1 | 2 | 3 | 4;
 export interface BaseQuestion {
   id: number;
   type: QuestionType;
-  category: 1 | 2 | 3 | 4;
+  category: 1 | 2 | 3 | 4 | 5;
   language: 1 | 2 | 3 | 4;
   difficulty: 1 | 2 | 3;
   points: number;
@@ -54,9 +54,6 @@ export type Question =
   | QuizMultiQuestion
   | CodeFillExactQuestion
   | CodeFillRegexQuestion;
-
-
-export const STORAGE_KEY = "quiz_questions_v2";
 
 /**
  * Cipher Module untuk Randomize dan Unrandomize String

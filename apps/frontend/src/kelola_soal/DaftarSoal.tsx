@@ -35,12 +35,9 @@ import {
 } from "@/components/ui/select";
 import { CodePreview } from "@/components/custom/codeEditor";
 import { TypeBadge, DifficultyStars } from "@/components/shared";
-import type {
-  Question,
-  QuestionType
-} from "@/types";
-import { saveQuestions } from "@/types";
 import { HL_LANGUAGES, LANGUAGES, CATEGORIES, TYPE_LABELS, BACKEND_URL } from "@/constants";
+import type { Question, QuestionType } from "shared";
+import { saveQuestions } from "./utils";
 
 // ─── curl builder ─────────────────────────────────────────────────────────────
 

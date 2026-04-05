@@ -12,11 +12,11 @@ import QuizMulti from "@/components/QuizMulti"
 import CodeFill from "@/components/CodeFill"
 
 import { submitAnswer } from "@/lib/submitAnswer"
-import { BACKEND_URL, type Question } from "@/types"
+import { BACKEND_URL } from "@/types"
 import { validateAnswer } from "@/lib/utils"
 import { CATEGORIES, HL_LANGUAGES, LANGUAGES } from "@/constants"
 import { DifficultyStars, TypeBadge } from "@/components/shared"
-import { isJsonArray } from "shared"
+import { isJsonArray, type Question } from "shared"
 
 function parseAnswer(value: any) {
   return isJsonArray(value) ? JSON.parse(value) : value

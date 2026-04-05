@@ -1,12 +1,10 @@
 /**
- * App.tsx — Root component.
+ * kelola_soal/Index.tsx
  *
  * Tiga tab utama menggunakan ShadCN Tabs:
  *   · Buat Soal  — pilih tipe → render FormTipe1/2/3/4
  *   · Daftar Soal — DaftarSoal dengan filter & export
  *   · Export cURL — semua soal sekaligus
- *
- * State soal di localStorage melalui helpers di types.ts.
  */
 
 import { useState, useCallback, useEffect } from "react";
@@ -25,10 +23,10 @@ import FormTipe2 from "@/kelola_soal/FormTipe2";
 import FormTipe3 from "@/kelola_soal/FormTipe3";
 import FormTipe4 from "@/kelola_soal/FormTipe4";
 import DaftarSoal from "@/kelola_soal/DaftarSoal";
-import type { Question, QuestionType } from "@/types";
 import { saveQuestion, saveQuestions, syncQuestions, updateQuestion } from "@/lib/utils";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { BACKEND_URL, SECRET_KEY } from "@/constants";
+import type { Question, QuestionType } from "shared";
 // ─── Type selector cards ───────────────────────────────────────────────────────
 
 const TYPE_OPTIONS = [

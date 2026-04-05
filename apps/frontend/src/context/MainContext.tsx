@@ -1,9 +1,9 @@
 // MainContext.tsx
 import { TIME_LIMIT } from "@/constants";
 import { safeParse } from "@/lib/utils";
-import { BACKEND_URL, type Question } from "@/types";
+import { BACKEND_URL } from "@/types";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { Cipher } from "shared";
+import { Cipher, type Question } from "shared";
 import { toast } from "sonner";
 
 function normalizeQuestion(q: any): Question {

@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { type QuestionType } from "@/types";
 import { CATEGORIES, LANGUAGES, TYPE_LABELS } from "@/constants";
+import type { QuestionType } from "shared";
 // ─── Field wrapper ────────────────────────────────────────────────────────────
 
 export function Field({
