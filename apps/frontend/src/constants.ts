@@ -34,7 +34,7 @@ export const TYPE_COLORS: Record<number, string> = {
   4: "bg-red-50 text-red-700",
 };
 
-export const TIME_LIMIT = 20;
+export const TIME_LIMIT = Number(import.meta.env.VITE_TIME_LIMIT) || 30;
 export const SECRET_KEY = import.meta.env.VITE_SECRET_KEY
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 // src/config/storageVersion.ts
