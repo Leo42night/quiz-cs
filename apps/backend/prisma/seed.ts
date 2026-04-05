@@ -28,7 +28,7 @@ async function seedStudents() {
 async function seedQuestions() {
   console.log("seed Questions...");
   // 1. Load data
-  const fileContent = await Bun.file(path.resolve(__dirname, "../data-questions.json")).text();
+  const fileContent = await Bun.file(path.resolve(__dirname, "../data-q-docker.json")).text();
   const questions = JSON.parse(fileContent);
 
   // 2. Transform data
@@ -96,7 +96,7 @@ async function main() {
     console.log("start seed in...", process.cwd());
     // await seedStudents();
     await seedQuestions();
-    await seedUserQuestion();
+    // await seedUserQuestion();
   } catch (error) {
     console.error(error);
   }

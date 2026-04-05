@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     // Environment setup & latest features
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@db/*": ["./src/generated/prisma/*"]

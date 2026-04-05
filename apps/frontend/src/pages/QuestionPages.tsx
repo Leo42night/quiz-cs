@@ -303,8 +303,8 @@ export default function QuestionPage() {
       </CardHeader>
       <CardContent className="space-y-6">
         <h3>Seputar Quiz:</h3>
-        <ol>
-          <li>Materi terbagi atas BunJs, Tailwind, Git, ElysiaJs</li>
+        <ol>  
+          <li>Materi terbagi atas: BunJs, Tailwind, Git, ElysiaJs, & Docker.</li>
           <li>Tipe Quiz terbagi atas; Single answer, multi answer, exact code fill &amp; regex code fill</li>
           <li>Limit waktu menjawab tiap soal {TIME_LIMIT} detik</li>
           <li>Tekan tombol "Simpan Score" di kanan atas layar untuk menyimpan</li>

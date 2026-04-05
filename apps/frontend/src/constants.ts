@@ -3,6 +3,7 @@ export const CATEGORIES: Record<number, string> = {
   2: "TailwindCSS",
   3: "Git & Github",
   4: "ElysiaJS",
+  5: "Docker"
 };
 
 export const LANGUAGES: Record<number, string> = {
@@ -37,4 +38,4 @@ export const TIME_LIMIT = 20;
 export const SECRET_KEY = import.meta.env.VITE_SECRET_KEY
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 // src/config/storageVersion.ts
-export const STORAGE_VERSION = "1.0.0"; // Ubah ini setiap deploy yang perlu reset
+export const STORAGE_VERSION = "1.0.1"; // Ubah ini setiap deploy yang perlu reset

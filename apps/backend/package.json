@@ -7,6 +7,7 @@
     "dev": "bun --watch src/index.ts",
     "devt": "bun run dev:turso",
     "db:sql": "bun prisma/query.ts",
+    "db:seed": "bun prisma/seed.ts",
     "start": "bun dist/index.mjs",
     "build": "prisma generate && tsdown",
     "postinstall": "prisma generate",

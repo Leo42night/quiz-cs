@@ -2,7 +2,7 @@ import { join } from "path";
 import { prisma } from "./db";
 import { readFileSync } from "fs";
 
-const sql = readFileSync(join(__dirname, "../baseline.sql"), "utf-8");
+const sql = readFileSync(join(__dirname, "../data.sql"), "utf-8");
 
 // Regex handle statement escape element
 const statements = sql

@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "bun run --filter '*' dev",
     "db:dump": "bun run --filter backend db:dump",
+    "db:seed": "bun run --filter backend db:seed",
+    "prod:seed": "bun run --env-file=apps/backend/.env.production --filter backend db:seed",
     "devt": "bun run --env-file=apps/backend/.env.production --filter '*' devt",
     "start": "bun run --filter '*' start",
     "dev:frontend": "bun run --filter frontend dev",
