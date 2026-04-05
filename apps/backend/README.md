@@ -15,7 +15,7 @@ bunx --bun prisma generate
 # Memasukkan data baru dari file *.json
 bun prisma/seed.ts
 # Menjalankan query dari file *.sql
-bun prisma/migrate.ts
+bun prisma/query.ts
 # Export database `dev.db` ke file `data.sql` 
 sqlite3 dev.db .dump > data.sql
 ```
@@ -27,7 +27,7 @@ Sekarang menggunakan turso database.
 bun dev:turso
 
 # `seed.ts` dapat digunakna untuk memasukkan data
-# `migrate.ts` dapat digunakan untuk run query (CRUD) ke database
+# `query.ts` dapat digunakan untuk run query (CRUD) ke database
 ```
 
 Jalankan [turso CLI](https://docs.turso.tech/cli/introduction) (OS Windows pakai WSL):

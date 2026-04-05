@@ -41,18 +41,39 @@ function makeDefault(): Omit<CodeFillExactQuestion, "id"> {
   };
 }
 
+function parseCorrectAnswer(val: unknown): string[] {
+  if (Array.isArray(val)) return val;
+  if (typeof val === "string") {
+    try { return JSON.parse(val); } catch { return []; }
+  }
+  return [];
+}
+
 // ─── props ────────────────────────────────────────────────────────────────────
 
 interface Props {
   initial?: CodeFillExactQuestion;
-  onSave: (q: Omit<CodeFillExactQuestion, "id">) => void;
+  onSave: (q: Omit<CodeFillExactQuestion, "id">, onSuccess: () => void) => void;
+  onReady?: (reset: () => void) => void;
   onCancel?: () => void;
 }
 
 // ─── component ────────────────────────────────────────────────────────────────
 
-export default function FormTipe3({ initial, onSave, onCancel }: Props) {
-  const [form, setForm] = useState(() => (initial ? { ...initial } : makeDefault()));
+export default function FormTipe3({ initial, onSave, onReady, onCancel }: Props) {
+  const [form, setForm] = useState(() => {
+    if (initial) {
+      return {
+        ...initial,
+        correct_answer: parseCorrectAnswer(initial.correct_answer),
+      };
+    }
+    return makeDefault();
+  });
+
+  useEffect(() => {
+    onReady?.(() => setForm(makeDefault()));
+  }, []);
 
   // Editor state: human-friendly [ANS:xxx] template
   const [template, setTemplate] = useState<string>(() =>
@@ -87,11 +108,12 @@ export default function FormTipe3({ initial, onSave, onCancel }: Props) {
     if (!template.trim()) return void toast.error("Template kode tidak boleh kosong.");
     if (form.correct_answer.some((a) => !a.trim()))
       return void toast.error("Semua jawaban placeholder harus diisi.");
-    onSave(form);
-    if (!initial) {
-      setForm(makeDefault());
-      setTemplate("");
-    }
+    onSave(form, () => {  // pass reset callback
+      if (!initial) {
+        setForm(makeDefault());
+        setTemplate("");
+      }
+    });
   };
 
   return (

@@ -2,6 +2,7 @@ import { Cipher, STORAGE_KEY, type Question } from "shared";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { toast } from "sonner";
+import { BACKEND_URL } from "@/constants";
 
 function normalizeQuestion(q: any): Question {
   const answer =
@@ -33,7 +34,7 @@ export async function syncQuestions(
   if (localData && localData !== "[]") {
     const parsed = JSON.parse(localData).map(normalizeQuestion);
     setQuestions(parsed);
-    return; 
+    return;
   }
 
   // 2. Jika tidak ada di local storage, ambil dari backend
@@ -45,7 +46,7 @@ export async function syncQuestions(
     if (!resQ.ok) throw new Error("Failed to fetch questions");
 
     const fetchedQ = await resQ.json();
-    
+
     // 3. Dekripsi dan Normalisasi
     const decodeQuestions = Cipher.decode(fetchedQ.data, import.meta.env.VITE_SEED);
     const normalized = safeParse(decodeQuestions, []).map(normalizeQuestion);
@@ -61,7 +62,25 @@ export async function syncQuestions(
 }
 
 export function saveQuestions(questions: Question[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(questions));
+  localStorage.setItem("questions", JSON.stringify(questions));
+}
+
+export async function saveQuestion(question: Omit<Question, "id">): Promise<Response> {
+  const resQ = await fetch(`${BACKEND_URL}/api/questions?key=${import.meta.env.VITE_SECRET_KEY}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(question),
+  });
+  return resQ;
+}
+
+export async function updateQuestion(id: number, question: Omit<Question, "id">): Promise<Response> {
+  const resQ = await fetch(`${BACKEND_URL}/api/questions/${id}?key=${import.meta.env.VITE_SECRET_KEY}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(question),
+  });
+  return resQ;
 }
 
 export function editorTemplateToApi(template: string): string {
@@ -99,7 +118,7 @@ export function safeParse<T>(value: string | null, fallback: T): T {
 /**
  * Mengecek apakah data adalah string yang berisi array JSON
  */
-  // 1. Cek apakah tipe datanya string
+// 1. Cek apakah tipe datanya string
 // // --- Test Cases ---
 // console.log(isJsonArray(1));                         // false
 // console.log(isJsonArray("Halo"));                    // false

@@ -13,17 +13,17 @@ const router = createBrowserRouter([
       {
         index: true, // Ini akan muncul di path "/"
         element: <QuestionPage />,
-      },
-      {
-        path: "kelola-soal",
-        element: <KelolaSoal />,
-      },
+      }
       // {
       //   path: "view-question/:id",
       //   element: <ViewQuestionPage />,
       // },
     ],
   },
+  {
+    path: "kelola-soal",
+    element: <KelolaSoal />,
+  }
 ]);
 
 function App() {

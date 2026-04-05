@@ -75,14 +75,19 @@ const QUICK_PATTERNS = [
 
 interface Props {
   initial?: CodeFillRegexQuestion;
-  onSave: (q: Omit<CodeFillRegexQuestion, "id">) => void;
+  onSave: (q: Omit<CodeFillRegexQuestion, "id">, onSuccess: () => void) => void;
+  onReady?: (reset: () => void) => void;
   onCancel?: () => void;
 }
 
 // ─── component ────────────────────────────────────────────────────────────────
 
-export default function FormTipe4({ initial, onSave, onCancel }: Props) {
+export default function FormTipe4({ initial, onSave, onReady, onCancel }: Props) {
   const [form, setForm] = useState(() => (initial ? { ...initial } : makeDefault()));
+
+  useEffect(() => {
+    onReady?.(() => setForm(makeDefault()));
+  }, []);
 
   const [template, setTemplate] = useState<string>(() =>
     initial?.answer ? apiTemplateToEditor(initial.answer, []) : ""
@@ -113,12 +118,13 @@ export default function FormTipe4({ initial, onSave, onCancel }: Props) {
     if (!template.trim()) return void toast.error("Template kode tidak boleh kosong.");
     if (!form.correct_answer.trim()) return void toast.error("Regex pattern tidak boleh kosong.");
     if (regexError) return void toast.error(`Regex tidak valid: ${regexError}`);
-    onSave(form);
-    if (!initial) {
-      setForm(makeDefault());
-      setTemplate("");
-      setTestInput("");
-    }
+    onSave(form, () => {  // pass reset callback
+      if (!initial) {
+        setForm(makeDefault());
+        setTemplate("");
+        setTestInput("");
+      }
+    });
   };
 
   return (

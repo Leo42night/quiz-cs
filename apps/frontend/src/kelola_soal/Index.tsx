@@ -26,7 +26,7 @@ import FormTipe3 from "@/kelola_soal/FormTipe3";
 import FormTipe4 from "@/kelola_soal/FormTipe4";
 import DaftarSoal from "@/kelola_soal/DaftarSoal";
 import type { Question, QuestionType } from "@/types";
-import { saveQuestions, syncQuestions } from "@/lib/utils";
+import { saveQuestion, saveQuestions, syncQuestions, updateQuestion } from "@/lib/utils";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { BACKEND_URL, SECRET_KEY } from "@/constants";
 // ─── Type selector cards ───────────────────────────────────────────────────────
@@ -169,11 +169,13 @@ function ExportTab({
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState("create");
   const [searchParams] = useSearchParams();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedType, setSelectedType] = useState<QuestionType>(1);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [baseUrl, setBaseUrl] = useState(BACKEND_URL || "http://localhost:3000");
+  const [resetForm, setResetForm] = useState<(() => void) | null>(null);
 
   useEffect(() => {
     syncQuestions(setQuestions);
@@ -188,35 +190,53 @@ export default function App() {
   }
 
   const handleSave = useCallback(
-    (data: Omit<Question, "id">) => {
-      let updated: Question[];
-      if (editingQuestion) {
-        updated = questions.map((q) =>
-          q.id === editingQuestion.id
-            ? ({ ...data, id: editingQuestion.id } as Question)
-            : q
-        );
-        setEditingQuestion(null);
-      } else {
-        updated = [...questions, { ...data, id: Date.now() } as Question];
+    async (data: Omit<Question, "id">, onSuccess?: () => void) => {
+      try {
+        if (editingQuestion) {
+          const resQ = await updateQuestion(editingQuestion.id, data);
+          if (!resQ.ok) throw new Error(`Jawaban quiz gagal diupdate: ${resQ.status}`);
+          setQuestions((prev) =>
+            prev.map((q) =>
+              q.id === editingQuestion.id
+                ? ({ ...data, id: editingQuestion.id } as Question)
+                : q
+            )
+          );
+          setEditingQuestion(null);
+        } else {
+          const resQ = await saveQuestion(data);
+          if (!resQ.ok) throw new Error(`Soal gagal disimpan: ${resQ.status}`);
+          const saved = await resQ.json(); // ambil id dari backend kalau ada
+          setQuestions((prev) => [...prev, { ...data, id: saved?.id ?? Date.now() } as Question]);
+        }
+        toast.success(editingQuestion ? "Soal berhasil diupdate!" : "Soal berhasil disimpan!", {
+          position: "top-left"
+        });
+        onSuccess?.();
+      } catch (e) {
+        toast.error(`${e}`);
       }
-      setQuestions(updated);
-      saveQuestions(updated);
-      toast.success(editingQuestion ? "Soal berhasil diupdate!" : "Soal berhasil disimpan!", {
-        position: "top-left"
-      });
     },
-    [editingQuestion, questions]
+    [editingQuestion]
   );
+
+  useEffect(() => {
+    saveQuestions(questions);
+  }, [questions]);
 
   const handleEdit = useCallback((q: Question) => {
     setEditingQuestion(q);
     setSelectedType(q.type);
+
+    // pindahkan tampilan ke form
+    setActiveTab("create");
   }, []);
 
   const handleCancelEdit = useCallback(() => {
     setEditingQuestion(null);
-  }, []);
+    console.log("handleCancleEdit")
+    resetForm?.();
+  }, [resetForm]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -243,7 +263,7 @@ export default function App() {
 
       {/* ── main ── */}
       <main className="max-w-4xl mx-auto px-6 py-6">
-        <Tabs defaultValue="create">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full mb-6">
             <TabsTrigger value="create" className="flex-1 gap-1.5">
               <PlusCircle className="h-3.5 w-3.5" />
@@ -311,28 +331,32 @@ export default function App() {
             {(editingQuestion?.type ?? selectedType) === 1 && (
               <FormTipe1
                 initial={editingQuestion?.type === 1 ? editingQuestion : undefined}
-                onSave={(d) => handleSave(d as Omit<Question, "id">)}
+                onSave={(d, onSuccess) => handleSave(d as Omit<Question, "id">, onSuccess)}
+                onReady={(reset) => setResetForm(() => reset)}
                 onCancel={editingQuestion ? handleCancelEdit : undefined}
               />
             )}
             {(editingQuestion?.type ?? selectedType) === 2 && (
               <FormTipe2
                 initial={editingQuestion?.type === 2 ? editingQuestion : undefined}
-                onSave={(d) => handleSave(d as Omit<Question, "id">)}
+                onSave={(d, onSuccess) => handleSave(d as Omit<Question, "id">, onSuccess)}
+                onReady={(reset) => setResetForm(() => reset)}
                 onCancel={editingQuestion ? handleCancelEdit : undefined}
               />
             )}
             {(editingQuestion?.type ?? selectedType) === 3 && (
               <FormTipe3
                 initial={editingQuestion?.type === 3 ? editingQuestion : undefined}
-                onSave={(d) => handleSave(d as Omit<Question, "id">)}
+                onSave={(d, onSuccess) => handleSave(d as Omit<Question, "id">, onSuccess)}
+                onReady={(reset) => setResetForm(() => reset)}
                 onCancel={editingQuestion ? handleCancelEdit : undefined}
               />
             )}
             {(editingQuestion?.type ?? selectedType) === 4 && (
               <FormTipe4
                 initial={editingQuestion?.type === 4 ? editingQuestion : undefined}
-                onSave={(d) => handleSave(d as Omit<Question, "id">)}
+                onSave={(d, onSuccess) => handleSave(d as Omit<Question, "id">, onSuccess)}
+                onReady={(reset) => setResetForm(() => reset)}
                 onCancel={editingQuestion ? handleCancelEdit : undefined}
               />
             )}

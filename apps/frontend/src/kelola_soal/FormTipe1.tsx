@@ -10,7 +10,7 @@
  *   correct_answer  : number     — index pilihan yang benar (0-based)
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "@/hooks/useToast";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { Trash2, PlusCircle, CheckCircle2 } from "lucide-react";
@@ -42,14 +42,19 @@ const OPTION_LABELS = ["A", "B", "C", "D", "E", "F"];
 
 interface Props {
   initial?: QuizSingleQuestion;
-  onSave: (q: Omit<QuizSingleQuestion, "id">) => void;
+  onSave: (q: Omit<QuizSingleQuestion, "id">, onSuccess: () => void) => void;
+  onReady?: (reset: () => void) => void;
   onCancel?: () => void;
 }
 
 // ─── component ────────────────────────────────────────────────────────────────
 
-export default function FormTipe1({ initial, onSave, onCancel }: Props) {
+export default function FormTipe1({ initial, onSave, onReady, onCancel }: Props) {
   const [form, setForm] = useState(() => (initial ? { ...initial } : makeDefault()));
+
+  useEffect(() => {
+    onReady?.(() => setForm(makeDefault()));
+  }, []);
 
   const set = (key: string, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -81,8 +86,9 @@ export default function FormTipe1({ initial, onSave, onCancel }: Props) {
   const handleSubmit = () => {
     if (!form.question.trim()) return void toast.error("Pertanyaan tidak boleh kosong.");
     if (form.answer.some((a) => !a.trim())) return void toast.error("Semua pilihan harus diisi.");
-    onSave(form);
-    if (!initial) setForm(makeDefault());
+    onSave(form, () => {  // pass reset callback
+      if (!initial) setForm(makeDefault());
+    });
   };
 
   return (

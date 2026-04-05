@@ -6,6 +6,7 @@ import type { QuestionType } from "../types";
 function saveToString(value: any) {
   if (Array.isArray(value)) return JSON.stringify(value);  // actual array → stringify
   if (isJsonArray(value)) return value;                    // sudah string JSON array → biarkan
+  if (typeof value === "number") return value.toString()   // number jadikan string
   return value;                                            // string biasa / number → biarkan}
 }
 

@@ -10,7 +10,7 @@
  *   correct_answer  : number[]   — array index pilihan benar (sorted)
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "@/hooks/useToast";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import { Check, Trash2, PlusCircle } from "lucide-react";
@@ -40,20 +40,41 @@ function makeDefault(): Omit<QuizMultiQuestion, "id"> {
   };
 }
 
+function parseCorrectAnswer(val: unknown): string[] {
+  if (Array.isArray(val)) return val;
+  if (typeof val === "string") {
+    try { return JSON.parse(val); } catch { return []; }
+  }
+  return [];
+}
+
 const OPTION_LABELS = ["A", "B", "C", "D", "E", "F"];
 
 // ─── props ────────────────────────────────────────────────────────────────────
 
 interface Props {
   initial?: QuizMultiQuestion;
-  onSave: (q: Omit<QuizMultiQuestion, "id">) => void;
+  onSave: (q: Omit<QuizMultiQuestion, "id">, onSuccess: () => void) => void;
+  onReady?: (reset: () => void) => void;
   onCancel?: () => void;
 }
 
 // ─── component ────────────────────────────────────────────────────────────────
 
-export default function FormTipe2({ initial, onSave, onCancel }: Props) {
-  const [form, setForm] = useState(() => (initial ? { ...initial } : makeDefault()));
+export default function FormTipe2({ initial, onSave, onReady, onCancel }: Props) {
+  const [form, setForm] = useState(() => {
+    if (initial) {
+      return {
+        ...initial,
+        correct_answer: parseCorrectAnswer(initial.correct_answer),
+      };
+    }
+    return makeDefault();
+  });
+  
+  useEffect(() => {
+    onReady?.(() => setForm(makeDefault()));
+  }, []);
 
   const set = (key: string, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -91,8 +112,9 @@ export default function FormTipe2({ initial, onSave, onCancel }: Props) {
     if (!form.question.trim()) return void toast.error("Pertanyaan tidak boleh kosong.");
     if (form.answer.some((a) => !a.trim())) return void toast.error("Semua pilihan harus diisi.");
     if (form.correct_answer.length === 0) return void toast.error("Pilih minimal satu jawaban benar.");
-    onSave(form);
-    if (!initial) setForm(makeDefault());
+    onSave(form, () => {  // pass reset callback
+      if (!initial) setForm(makeDefault());
+    });
   };
 
   return (

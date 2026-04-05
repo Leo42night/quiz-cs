@@ -58,30 +58,40 @@ const STAT_CLASSES: Record<QuestionType, string> = {
   4: "bg-rose-50 border-rose-100 text-rose-700",
 };
 
+function parseCorrectAnswer(val: unknown): unknown {
+  if (Array.isArray(val)) return val;
+  if (typeof val === "string") {
+    try { return JSON.parse(val); } catch { return val; }
+  }
+  return val;
+}
+
 // ─── Detail panel (expanded row) ─────────────────────────────────────────────
 
 function QuestionDetail({ q }: { q: Question }) {
   const langKey = HL_LANGUAGES[q.language] ?? "javascript";
+  const correctAnswer = parseCorrectAnswer(q.correct_answer);
+  const pq = { ...q, correct_answer: correctAnswer } as Question;
 
   return (
     <div className="mt-3 pt-3 border-t border-border space-y-3">
       {/* quiz choices */}
-      {(q.type === 1 || q.type === 2) && (
+      {(pq.type === 1 || pq.type === 2) && (
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
             Pilihan Jawaban
           </p>
           <div className="flex flex-col gap-1.5">
-            {q.answer.map((ans, i) => {
+            {pq.answer.map((ans, i) => {
               const isCorrect =
-                q.type === 1
-                  ? q.correct_answer === i
-                  : (q.correct_answer as number[]).includes(i);
+                pq.type === 1
+                  ? pq.correct_answer === i
+                  : (pq.correct_answer as number[]).includes(i);
               return (
                 <div
                   key={i}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm border ${isCorrect
-                    ? q.type === 1
+                    ? pq.type === 1
                       ? "bg-blue-50 border-blue-200 text-blue-800"
                       : "bg-emerald-50 border-emerald-200 text-emerald-800"
                     : "bg-muted/30 border-border text-muted-foreground"
@@ -102,18 +112,18 @@ function QuestionDetail({ q }: { q: Question }) {
       )}
 
       {/* code template */}
-      {(q.type === 3 || q.type === 4) && (
+      {(pq.type === 3 || pq.type === 4) && (
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
             Template Kode
           </p>
           <CodePreview
-            code={(q.answer as string)
+            code={(pq.answer as string)
               .replace(/\\n/g, "\n")
               .replace(/\\t/g, "\t")
               .replace(/<<\d+>>/g, (m) => `[ANS:${"_".repeat(+(m.slice(2, -2)) || 4)}]`)}
             language={langKey}
-            blankStyle={q.type === 3 ? "exact" : "regex"}
+            blankStyle={pq.type === 3 ? "exact" : "regex"}
           />
         </div>
       )}
@@ -124,23 +134,23 @@ function QuestionDetail({ q }: { q: Question }) {
           Jawaban Benar
         </p>
         <div className="flex flex-wrap gap-2">
-          {q.type === 1 && (
+          {pq.type === 1 && (
             <Badge variant="outline" className="font-mono bg-blue-50 text-blue-700 border-blue-200">
-              [{q.correct_answer as number}] {q.answer[q.correct_answer as number]}
+              [{pq.correct_answer as number}] {pq.answer[pq.correct_answer as number]}
             </Badge>
           )}
-          {q.type === 2 &&
-            (q.correct_answer as number[]).map((i) => (
+          {pq.type === 2 &&
+            (pq.correct_answer as number[]).map((i) => (
               <Badge
                 key={i}
                 variant="outline"
                 className="font-mono bg-emerald-50 text-emerald-700 border-emerald-200"
               >
-                [{i}] {q.answer[i]}
+                [{i}] {pq.answer[i]}
               </Badge>
             ))}
-          {q.type === 3 &&
-            (q.correct_answer as string[]).map((ans, i) => (
+          {pq.type === 3 &&
+            (pq.correct_answer as string[]).map((ans, i) => (
               <Badge
                 key={i}
                 variant="outline"
@@ -149,12 +159,12 @@ function QuestionDetail({ q }: { q: Question }) {
                 [{i}] {ans}
               </Badge>
             ))}
-          {q.type === 4 && (
+          {pq.type === 4 && (
             <Badge
               variant="outline"
               className="font-mono bg-rose-50 text-rose-700 border-rose-200"
             >
-              /{q.correct_answer as string}/
+              /{pq.correct_answer as string}/
             </Badge>
           )}
         </div>
@@ -190,18 +200,25 @@ export default function DaftarSoal({
   const [showCurlId, setShowCurlId] = useState<number | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
 
+  const [sortField, setSortField] = useState<"id" | "type" | "difficulty" | "points">("id");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
   const filtered = useMemo(
     () =>
-      questions.filter((q) => {
-        if (filterType && q.type !== +filterType) return false;
-        if (filterCat && q.category !== +filterCat) return false;
-        if (filterLang && q.language !== +filterLang) return false;
-        if (filterDiff && q.difficulty !== +filterDiff) return false;
-        if (search && !q.question.toLowerCase().includes(search.toLowerCase()))
-          return false;
-        return true;
-      }),
-    [questions, filterType, filterCat, filterLang, filterDiff, search]
+      questions
+        .filter((q) => {
+          if (filterType && q.type !== +filterType) return false;
+          if (filterCat && q.category !== +filterCat) return false;
+          if (filterLang && q.language !== +filterLang) return false;
+          if (filterDiff && q.difficulty !== +filterDiff) return false;
+          if (search && !q.question.toLowerCase().includes(search.toLowerCase())) return false;
+          return true;
+        })
+        .sort((a, b) => {
+          const dir = sortDir === "asc" ? 1 : -1;
+          return (a[sortField] > b[sortField] ? 1 : -1) * dir;
+        }),
+    [questions, filterType, filterCat, filterLang, filterDiff, search, sortField, sortDir]
   );
 
   const handleDelete = (id: number) => {
@@ -316,7 +333,7 @@ export default function DaftarSoal({
                 value={f.value || "_all"}
                 onValueChange={(v) => f.setter(v === "_all" ? "" : v)}
               >
-                <SelectTrigger className="w-auto min-w-[130px] h-8 text-sm">
+                <SelectTrigger className="w-auto min-w-32.5 h-8 text-sm">
                   <SelectValue placeholder={f.placeholder} />
                 </SelectTrigger>
                 <SelectContent>
@@ -344,6 +361,29 @@ export default function DaftarSoal({
                 {copiedAll ? "Tersalin!" : "Copy Semua cURL"}
               </Button>
             )}
+            {/* sort field */}
+            <Select value={sortField} onValueChange={(v) => setSortField(v as typeof sortField)}>
+              <SelectTrigger className="w-auto min-w-32 h-8 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="id">Urutan Input</SelectItem>
+                <SelectItem value="type">Tipe</SelectItem>
+                <SelectItem value="difficulty">Difficulty</SelectItem>
+                <SelectItem value="points">Poin</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* sort direction */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-2.5"
+              onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
+              title={sortDir === "asc" ? "Ascending" : "Descending"}
+            >
+              {sortDir === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
           </div>
         </CardContent>
       </Card>
