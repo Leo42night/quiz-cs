@@ -59,7 +59,7 @@ export async function submitAnswer(
             const regex = new RegExp(`^${pattern}$`);
             const isMatch = regex.test(userAnswers[i]);
 
-            console.log(`Testing index [${i}]: "${userAnswers[i]}" against /${pattern}/ -> ${isMatch}`);
+            // console.log(`Testing index [${i}]: "${userAnswers[i]}" against /${pattern}/ -> ${isMatch}`);
             return isMatch;
           } catch (e) {
             console.error("Invalid Regex Pattern:", pattern);
