@@ -84,8 +84,8 @@ export default function FormTipe1({ initial, onSave, onReady, onCancel }: Props)
     const newCorrect = items.indexOf(correctValue);
 
     // Debugging untuk memastikan
-    console.log("Value Benar:", correctValue);
-    console.log("Index Baru:", newCorrect);
+    // console.log("Value Benar:", correctValue);
+    // console.log("Index Baru:", newCorrect);
 
     setForm((f) => ({
       ...f,

@@ -8,6 +8,8 @@ import { TIME_LIMIT } from "@/constants";
 
 export default function HomePage() {
   const { user, questions, activeQuestion, setActiveQuestion, notAnsweredQuestionIds } = useAuth();
+  // console.log("notAnsweredQuestionIds", notAnsweredQuestionIds);
+  // console.log("questions", questions);
   const navigate = useNavigate();
 
   const handleStartQuiz = () => {
@@ -33,7 +35,7 @@ export default function HomePage() {
   const isFinished = questions.length !== 0 && notAnsweredQuestionIds.length === 0;
 
   return (
-    <div className="pt-20">
+    <div className="pt-20 selectable">
       <Card className="max-w-3xl mx-auto mt-8">
         <CardHeader className="font-semibold text-center text-2xl">
           Fase 2
@@ -48,15 +50,16 @@ export default function HomePage() {
               <li>Tekan tombol "Simpan Score" untuk mengamankan progress Anda.</li>
             </ol>
           </div>
-
-          <div className="bg-muted p-4 rounded-lg flex justify-between items-center">
-            <p className="text-sm font-medium">
-              Progress: {questions.length - notAnsweredQuestionIds.length} / {questions.length} Soal
-            </p>
-            <Button onClick={handleStartQuiz} disabled={isFinished}>
-              {isFinished ? "Semua Soal Selesai 🎉" : activeQuestion ? "Lanjutkan Quiz" : "Mulai Quiz"}
-            </Button>
-          </div>
+          {user && (
+            <div className="bg-muted p-4 rounded-lg flex justify-between items-center">
+              <p className="text-sm font-medium">
+                {questions.length - notAnsweredQuestionIds.length} / {questions.length} Soal
+              </p>
+              <Button onClick={handleStartQuiz} disabled={isFinished}>
+                {isFinished ? "Semua Soal Selesai 🎉" : activeQuestion ? "Lanjutkan Quiz" : "Mulai Quiz"}
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

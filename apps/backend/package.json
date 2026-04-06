@@ -11,6 +11,7 @@
     "db:save": "bun prisma/save.ts",
     "db-prod:save": "bun --env-file=.env.production prisma/save.ts",
     "db:seed": "bun prisma/seed.ts",
+    "db-prod:seed": "bun --env-file=.env.production prisma/seed.ts",
     "start": "bun dist/index.mjs",
     "generate": "bunx --bun prisma generate",
     "build": "prisma generate && tsdown",

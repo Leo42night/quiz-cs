@@ -83,7 +83,7 @@ interface Props {
 
 export default function FormTipe4({ initial, onSave, onReady, onCancel }: Props) {
   const isEditMode = !!initial;
-  console.log("initial", initial)
+  // console.log("initial", initial)
 
   const [form, setForm] = useState(() => (initial ? { ...initial } : makeDefault()));
 
@@ -117,8 +117,8 @@ export default function FormTipe4({ initial, onSave, onReady, onCancel }: Props)
   const [template, setTemplate] = useState<string>(() =>
     initial?.answer ? apiTemplateToEditor(initial.answer, patterns) : ""
   );
-  console.log("template", template)
-  console.log("patterns", patterns)
+  // console.log("template", template)
+  // console.log("patterns", patterns)
 
   const [testInputs, setTestInputs] = useState<string[]>([]);
 

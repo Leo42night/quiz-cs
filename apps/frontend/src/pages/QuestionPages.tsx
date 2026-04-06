@@ -110,7 +110,7 @@ export default function QuestionPage() {
   const handleCorrect = (qId: number, points: number) => {
     if (!user) return;
 
-    // Save to LocalStorage Logs
+
     const existingLogs = safeParse(localStorage.getItem(ANS_Q_IDS_STORAGE_KEY), []);
     if (!existingLogs.some((log: any) => log.question_id === qId)) {
       const updatedLogs = [...existingLogs, { user_id: user.id, question_id: qId }];
@@ -126,7 +126,7 @@ export default function QuestionPage() {
     getNextQuestion(updated);
   };
 
-  async function onSubmit(e?: React.FormEvent) {
+  async function onSubmit(e?: React.SubmitEvent) {
     if (e) e.preventDefault();
     if (!activeQuestion) return;
 

@@ -1,5 +1,5 @@
 // MainContext.tsx
-import { TIME_LIMIT, BACKEND_URL, NOT_ANS_Q_IDS_STORAGE_KEY } from "@/constants";
+import { TIME_LIMIT, BACKEND_URL, NOT_ANS_Q_IDS_STORAGE_KEY, SEED, ANS_Q_IDS_STORAGE_KEY } from "@/constants";
 import { normalizeQuestion, safeParse } from "@/lib/utils";
 import { NEW_ANS_Q_IDS_STORAGE_KEY, QUESTION_STORAGE_KEY } from "@/constants";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
@@ -28,7 +28,7 @@ interface MainContextType {
   activeQuestion: Question | null;
   setActiveQuestion: React.Dispatch<React.SetStateAction<Question | null>>;
   timeLimit: number;
-  onTimeUpRef: React.MutableRefObject<(() => Promise<void>) | null>;
+  onTimeUpRef: React.RefObject<(() => Promise<void>) | null>;
   addScore: (points: number) => void;
   isScoreMax: boolean;
   setIsScoreMax: React.Dispatch<React.SetStateAction<boolean>>
@@ -40,7 +40,7 @@ export function MainProvider({ children }: { children: ReactNode }) {
   const [questions, setQuestions] = useState<Question[]>(() => {
     const hex = localStorage.getItem(QUESTION_STORAGE_KEY);
     if (typeof hex === "string") {
-      const decodeQuestions = Cipher.decode(hex, import.meta.env.VITE_SEED);
+      const decodeQuestions = Cipher.decode(hex, SEED);
       const raw = safeParse(decodeQuestions, []);
       return raw.map(normalizeQuestion);
     } else {
@@ -68,6 +68,33 @@ export function MainProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(NEW_ANS_Q_IDS_STORAGE_KEY, JSON.stringify(newAnsweredQuestionIds));
   }, [newAnsweredQuestionIds]);
+  useEffect(() => {
+    localStorage.setItem(NOT_ANS_Q_IDS_STORAGE_KEY, JSON.stringify(notAnsweredQuestionIds));
+  }, [notAnsweredQuestionIds]);
+
+  const updateAnsweredQuest = async (userId: number) => {
+    if (localStorage.getItem(ANS_Q_IDS_STORAGE_KEY)) return;
+    const resQs = await fetch(`${BACKEND_URL}/api/users/${userId}/question-ids`);
+    if (!resQs.ok) throw new Error("Failed to fetch user question ids");
+    const fetchedQs = await resQs.json();
+    const answeredIds: number[] = fetchedQs || [];
+    // console.log("fetchedQs", fetchedQs);
+    // console.log("answeredIds", answeredIds);
+    // console.log(`${BACKEND_URL}/api/users/${userId}/question-ids`)
+    // 2. Simpan data answered yang sudah di-encode (jika diperlukan enkripsi)
+    localStorage.setItem(ANS_Q_IDS_STORAGE_KEY, JSON.stringify(answeredIds));
+
+    // 3. Filter ID dari semua soal yang TIDAK ada di dalam answeredIds
+    const notAnsweredIds = questions
+      .map((q) => q.id)
+      .filter((id) => !answeredIds.includes(id));
+
+    // 4. Update State
+    setNotAnsweredQuestionIds(notAnsweredIds);
+
+    // 5. Simpan ke LocalStorage
+    localStorage.setItem(NOT_ANS_Q_IDS_STORAGE_KEY, JSON.stringify(notAnsweredIds));
+  }
 
   // Fetch questions & users jika belum ada di localStorage
   useEffect(() => {
@@ -85,6 +112,11 @@ export function MainProvider({ children }: { children: ReactNode }) {
         const decodeQuestions = Cipher.decode(fetchedQ.data, import.meta.env.VITE_SEED);
         const normalized = safeParse(decodeQuestions, []).map(normalizeQuestion);
         setQuestions(normalized);
+
+        // jika sudah ada di local storage
+        if (user) {
+          await updateAnsweredQuest(user.id)
+        }
       } catch (err) {
         toast.error(`Gagal load questions: ${err}`);
         console.error("Initialization failed", err);
@@ -98,13 +130,11 @@ export function MainProvider({ children }: { children: ReactNode }) {
       // cari dari database
       const email = encodeURIComponent(googleData.email);
       // console.log("email:", email);
-      // console.log(`${BACKEND_URL}/api/users/by-email?email=${email}`);
       const res = await fetch(`${BACKEND_URL}/api/users/by-email?email=${email}`);
       if (!res.ok) throw new Error("Failed to fetch user");
 
       // Ambil sebagai text dulu untuk memastikan ada isinya
       const text = await res.text();
-      // console.log("textData", text);
 
       if (!text || text.trim().length === 0) {
         toast.error(`Email ${googleData.email} tidak terdaftar!\nPastikan menggunakan email classroom kelas PPWL 2026.`, { duration: 5000, icon: "🚫" });
@@ -116,7 +146,9 @@ export function MainProvider({ children }: { children: ReactNode }) {
       if (userData.score > 0) toast("Riwayat Score terdeteksi");
       setUserState(userData);
       localStorage.setItem("user", JSON.stringify(userData));
+      await updateAnsweredQuest(userData.id)
       return userData;
+
     } catch (error) {
       toast.error(`Gagal login: ${error}`);
     }
@@ -190,8 +222,8 @@ export function MainProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUserState(null);
     localStorage.removeItem("user");
-    localStorage.removeItem("answered_question_ids");
-    localStorage.removeItem("not_answered_question_ids");
+    localStorage.removeItem(ANS_Q_IDS_STORAGE_KEY);
+    localStorage.removeItem(NOT_ANS_Q_IDS_STORAGE_KEY);
     localStorage.removeItem(NEW_ANS_Q_IDS_STORAGE_KEY);
   };
 

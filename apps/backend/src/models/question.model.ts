@@ -21,6 +21,15 @@ export const QuestionModel = {
   async findAll() {
     return prisma.questions.findMany();
   },
+  async findAllByDateLimit(date: number) {
+    return prisma.questions.findMany({
+      where: {
+        updated_at: {
+          gte: date
+        }
+      }
+    });
+  },
   async length() {
     return prisma.questions.findMany();
   },

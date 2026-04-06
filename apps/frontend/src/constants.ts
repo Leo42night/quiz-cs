@@ -40,5 +40,6 @@ export const ANS_Q_IDS_STORAGE_KEY = "aqis";
 export const NOT_ANS_Q_IDS_STORAGE_KEY = "notaqis";
 export const TIME_LIMIT = Number(import.meta.env.VITE_TIME_LIMIT) || 30;
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+export const SEED = import.meta.env.VITE_SEED
 // src/config/storageVersion.ts
-export const STORAGE_VERSION = "1.0.6"; // Ubah ini setiap deploy yang perlu reset
+export const STORAGE_VERSION = "1.0.7"; // Ubah ini setiap deploy yang perlu reset

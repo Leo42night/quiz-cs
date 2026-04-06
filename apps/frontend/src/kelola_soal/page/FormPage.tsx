@@ -7,9 +7,10 @@ import FormTipe1 from "@/kelola_soal/FormTipe1";
 import FormTipe2 from "@/kelola_soal/FormTipe2";
 import FormTipe3 from "@/kelola_soal/FormTipe3";
 import FormTipe4 from "@/kelola_soal/FormTipe4";
-import { saveQuestionToDB, updateQuestion } from "../utils";
+import { saveQuestionToDB, updateQuestionToDB } from "../utils";
 import { useAuth } from "@/context/MainContext";
 import type { Question, QuestionType } from "shared";
+import { saveQuestionsToLocal } from "@/lib/utils";
 
 const TYPE_OPTIONS = [
   {
@@ -59,19 +60,35 @@ export default function FormPage() {
   const handleSave = useCallback(
     async (data: Omit<Question, "id">, onSuccess?: () => void) => {
       try {
+        const now = Date.now();
         if (editingQuestion) {
-          const res = await updateQuestion(editingQuestion.id, data);
+          const payload = { ...data, updated_at: now };
+          const res = await updateQuestionToDB(editingQuestion.id, payload);
           if (!res.ok) throw new Error(`Gagal update: ${res.status}`);
-          setQuestions((prev) =>
-            prev.map((q) =>
-              q.id === editingQuestion.id ? ({ ...data, id: editingQuestion.id } as Question) : q
-            )
+
+          const updatedList = questions.map((q) =>
+            q.id === editingQuestion.id
+              ? ({ ...payload, id: editingQuestion.id } as Question)
+              : q
           );
+
+          // 2. Update state
+          setQuestions(updatedList);
+
+          // 3. Simpan array terbaru yang SUDAH dihitung tadi ke LocalStorage
+          saveQuestionsToLocal(updatedList);
         } else {
-          const res = await saveQuestionToDB(data);
+          // Untuk simpan baru, tambahkan created_at dan updated_at
+          const payload = { ...data, updated_at: now };
+          const res = await saveQuestionToDB(payload);
           if (!res.ok) throw new Error(`Gagal simpan: ${res.status}`);
           const saved = await res.json();
-          setQuestions((prev) => [...prev, { ...data, id: saved?.id ?? Date.now() } as Question]);
+
+          // Gunakan ID dari server jika ada
+          setQuestions((prev) => [
+            ...prev,
+            { ...payload, id: saved?.id ?? now } as Question
+          ]);
         }
         toast.success(editingQuestion ? "Soal berhasil diupdate!" : "Soal berhasil disimpan!", {
           position: "top-left",
@@ -82,7 +99,7 @@ export default function FormPage() {
         toast.error(`${e}`);
       }
     },
-    [editingQuestion, navigate]
+    [editingQuestion, navigate, setQuestions]
   );
 
   const handleCancel = () => {
@@ -91,7 +108,7 @@ export default function FormPage() {
   };
 
   const activeType = editingQuestion?.type ?? selectedType;
-  console.log("editingQuestion", editingQuestion)
+  // console.log("editingQuestion", editingQuestion)
 
   const commonProps = {
     onSave: (d: Omit<Question, "id">, onSuccess?: () => void) => handleSave(d, onSuccess),

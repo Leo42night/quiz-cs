@@ -6,7 +6,7 @@ export function extractAnswersFromTemplate(template: string): string[] {
 }
 
 // START -- export to FormPage.tsx --
-export async function updateQuestion(id: number, question: Omit<Question, "id">): Promise<Response> {
+export async function updateQuestionToDB(id: number, question: Omit<Question, "id">): Promise<Response> {
   const resQ = await fetch(`${BACKEND_URL}/api/questions/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },

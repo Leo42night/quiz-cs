@@ -69,9 +69,10 @@ export default function DaftarSoalPage() {
   const [filterCat, setFilterCat] = useState(stored.category || "");
   const [filterLang, setFilterLang] = useState(stored.language || "");
   const [filterDiff, setFilterDiff] = useState(stored.difficulty || "");
+  const [filterDate, setFilterDate] = useState(stored.date || "");
   const [search, setSearch] = useState(stored.search || "");
 
-  const [sortField, setSortField] = useState<"id" | "type" | "difficulty" | "points">(stored.sortField || "id");
+  const [sortField, setSortField] = useState<"id" | "type" | "difficulty" | "points" | "updated_at">(stored.sortField || "id");
   const [sortDir, setSortDir] = useState<"asc" | "desc">(stored.sortDir || "desc");
 
   const baseUrl = BACKEND_URL || "http://localhost:3000"
@@ -81,6 +82,7 @@ export default function DaftarSoalPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [showCurlId, setShowCurlId] = useState<number | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
+  // console.log(questions.find((q) => q.id === 150));
 
   const filtered = useMemo(
     () =>
@@ -91,13 +93,35 @@ export default function DaftarSoalPage() {
           if (filterLang && q.language !== +filterLang) return false;
           if (filterDiff && q.difficulty !== +filterDiff) return false;
           if (search && !q.question.toLowerCase().includes(search.toLowerCase())) return false;
+
+          // --- Filter Tanggal Baru ---
+          if (filterDate) {
+            if (q.updated_at === 0) return false;
+
+            const qDate = new Date(q.updated_at).getTime();
+            const now = new Date().getTime();
+            const oneMinute = 60 * 1000;
+            const tenMinute = 10 * 60 * 1000;
+            const hour = 60 * 60 * 1000;
+            const oneDay = 24 * 60 * 60 * 1000;
+
+            if (filterDate === "minute" && now - qDate > oneMinute) return false;
+            if (filterDate === "ten-minute" && now - qDate > tenMinute) return false;
+            if (filterDate === "hour" && now - qDate > hour) return false;
+            if (filterDate === "today" && now - qDate > oneDay) return false;
+          }
           return true;
         })
         .sort((a, b) => {
           const dir = sortDir === "asc" ? 1 : -1;
-          return (a[sortField] > b[sortField] ? 1 : -1) * dir;
+
+          // Handle null/undefined updated_at agar tidak error saat sorting
+          const valA = a[sortField] ?? 0;
+          const valB = b[sortField] ?? 0;
+
+          return (valA > valB ? 1 : -1) * dir;
         }),
-    [questions, filterType, filterCat, filterLang, filterDiff, search, sortField, sortDir]
+    [questions, filterType, filterCat, filterLang, filterDiff, filterDate, search, sortField, sortDir]
   );
 
   // --- Filter Start
@@ -110,10 +134,11 @@ export default function DaftarSoalPage() {
       difficulty: filterDiff,
       search: search,
       sortField: sortField,
-      sortDir: sortDir
+      sortDir: sortDir,
+      date: filterDate
     };
     localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filterState));
-  }, [filterType, filterCat, filterLang, filterDiff, search, sortField, sortDir]);
+  }, [filterType, filterCat, filterLang, filterDiff, search, sortField, sortDir, filterDate]);
 
   const resetFilters = () => {
     setFilterType("");
@@ -121,9 +146,35 @@ export default function DaftarSoalPage() {
     setFilterLang("");
     setFilterDiff("");
     setSearch("");
+    setFilterDate("");
     toast.success("Filter dibersihkan");
   };
   // --- Filter End
+
+  const copyFilteredJSON = () => {
+    if (filtered.length === 0) {
+      return toast.error("Tidak ada soal yang terfilter untuk dicopy.");
+    }
+
+    try {
+      // 1. Konversi data filtered (termasuk ID) ke string JSON
+      const jsonString = JSON.stringify(filtered, null, 2);
+
+      // 2. Salin ke clipboard
+      navigator.clipboard.writeText(jsonString).then(() => {
+        setCopiedAll(true); // Opsional: gunakan state yang sudah ada untuk feedback visual
+        toast.success(`${filtered.length} soal (JSON) berhasil disalin ke clipboard!`, {
+          description: "Data siap di-paste ke file questions.json Anda.",
+        });
+
+        // Reset status icon setelah beberapa detik
+        setTimeout(() => setCopiedAll(false), 2500);
+      });
+    } catch (err) {
+      console.error("Gagal menyalin JSON: ", err);
+      toast.error("Gagal menyalin ke clipboard.");
+    }
+  };
 
   const onEdit = (q: Question) => navigate(`/kelola-soal/${q.id}`)
 
@@ -152,15 +203,6 @@ export default function DaftarSoalPage() {
       setCopiedId(q.id);
       toast.success("cURL berhasil dicopy!");
       setTimeout(() => setCopiedId(null), 2000);
-    });
-  };
-
-  const copyAll = () => {
-    const text = questions.map((q) => buildCurl(q, baseUrl)).join("\n\n# ---\n\n");
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedAll(true);
-      toast.success(`${questions.length} cURL berhasil dicopy!`);
-      setTimeout(() => setCopiedAll(false), 2500);
     });
   };
 
@@ -264,15 +306,20 @@ export default function DaftarSoalPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={copyAll}
+                  onClick={copyFilteredJSON}
                   className="gap-1.5 h-8"
                 >
                   {copiedAll ? (
-                    <CheckCheck className="h-3.5 w-3.5" />
+                    <CheckCheck className="h-3.5 w-3.5 text-emerald-500" />
                   ) : (
-                    <Terminal className="h-3.5 w-3.5" />
+                    <Copy className="h-3.5 w-3.5" />
                   )}
-                  {copiedAll ? "Tersalin!" : "Copy Semua cURL"}
+                  {copiedAll
+                    ? "Tersalin!"
+                    : filterType || filterCat || filterLang || filterDiff || search || filterDate
+                      ? `Copy JSON (${filtered.length} soal)`
+                      : "Copy Semua JSON"
+                  }
                 </Button>
               )}
               <Button
@@ -290,6 +337,7 @@ export default function DaftarSoalPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="id">Urutan Input</SelectItem>
+                  <SelectItem value="updated_at">Terakhir Diperbarui</SelectItem>
                   <SelectItem value="type">Tipe</SelectItem>
                   <SelectItem value="difficulty">Difficulty</SelectItem>
                   <SelectItem value="points">Poin</SelectItem>
@@ -306,6 +354,23 @@ export default function DaftarSoalPage() {
               >
                 {sortDir === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
+
+              {/* Dropdown Filter Berdasarkan Waktu */}
+              <Select
+                value={filterDate || "_all"}
+                onValueChange={(v) => setFilterDate(v === "_all" ? "" : v)}
+              >
+                <SelectTrigger className="w-auto min-w-36 h-8 text-sm">
+                  <SelectValue placeholder="Semua Waktu" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_all">Semua Waktu</SelectItem>
+                  <SelectItem value="minute">1 Menit</SelectItem>
+                  <SelectItem value="ten-minute">10 Menit</SelectItem>
+                  <SelectItem value="hour">1 Jam</SelectItem>
+                  <SelectItem value="today">Hari Ini</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
@@ -339,11 +404,11 @@ export default function DaftarSoalPage() {
                     {q.id}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium leading-snug mb-2">
+                    <div className="text-sm font-medium leading-snug mb-2">
                       <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
                         {q.question}
                       </ReactMarkdown>
-                    </p>
+                    </div>
                     <div className="flex flex-wrap gap-1.5 items-center">
                       <TypeBadge type={q.type} />
                       <Badge variant="secondary" className="text-[11px]">
@@ -355,6 +420,9 @@ export default function DaftarSoalPage() {
                       <DifficultyStars level={q.difficulty} />
                       <Badge variant="outline" className="text-[11px]">
                         {q.points} pts
+                      </Badge>
+                      <Badge variant="outline" className="text-[11px] text-muted-foreground">
+                        {q.updated_at ? new Date(1775502365141).toLocaleDateString('id-ID') : 'N/A'}
                       </Badge>
                     </div>
                   </div>

@@ -7,6 +7,18 @@ import { Prisma } from "../generated/prisma/client";
 
 export const questionRoute = new Elysia({ prefix: "/questions" })
   // security agak sulit (tapi masih bisa diakali)
+  .get("/date-limit", async ({ query: { date }, status }) => {
+    try {
+      const dateLimit = date ?? (Date.now() - (60 * 60 * 1000)); // default 1 jam yg lalu
+      return await QuestionService.findAllByDateLimit(dateLimit);
+    } catch (e) {
+      return status(404, { message: "Questions not found" });
+    }
+  }, {
+    query: t.Object({
+      date: t.Optional(t.Number())
+    })
+  })
   .get("/real", async ({ status }) => {
     try {
       return await QuestionService.findAll();
@@ -68,6 +80,7 @@ export const questionRoute = new Elysia({ prefix: "/questions" })
       ]),
       difficulty: t.Number(),
       points: t.Number(),
+      updated_at: t.Number()
     }),
   })
 
@@ -95,6 +108,7 @@ export const questionRoute = new Elysia({ prefix: "/questions" })
       ])),
       difficulty: t.Optional(t.Number()),
       points: t.Optional(t.Number()),
+      updated_at: t.Number()
     }),
   })
 
@@ -124,6 +138,7 @@ export const questionRoute = new Elysia({ prefix: "/questions" })
       ])),
       difficulty: t.Optional(t.Number()),
       points: t.Optional(t.Number()),
+      updated_at: t.Number()
     }),
   })
 

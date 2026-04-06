@@ -10,6 +10,9 @@ export const QuestionService = {
   async findAll() {
     return QuestionModel.findAll();
   },
+  async findAllByDateLimit(dateLimit: number) {
+    return QuestionModel.findAllByDateLimit(dateLimit);
+  },
   async length() {
     const data = await QuestionModel.length();
     if (!data) return 0;

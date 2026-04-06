@@ -59,7 +59,7 @@ export default function TestQuestion() {
     // 2. Gunakan toast.dismiss() untuk membersihkan toast sebelumnya 
     // atau gunakan ID unik agar toast baru menimpa yang lama
     const toastId = `question-hint-${question.id}`;
-    console.log("toastId", toastId);
+    // console.log("toastId", toastId);
 
     // 3. Beri sedikit delay agar transisi render selesai
     const timeout = setTimeout(() => {
@@ -194,6 +194,9 @@ export default function TestQuestion() {
       const result = await submitAnswer(question, answerRef.current)
       if (result.correct) {
         toast.success("Benar! ✓", { position: "top-left", duration: 1000 })
+        setTimeout(() => {
+          goTo("next")
+        }, 100)
       } else {
         const data = Array.isArray(question.correct_answer) ? JSON.stringify(question.correct_answer) : question.correct_answer;
         toast.info(`Salah: ${data}`, {

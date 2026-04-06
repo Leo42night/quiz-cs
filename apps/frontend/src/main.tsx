@@ -15,7 +15,7 @@ createRoot(document.getElementById('root')!).render(
     <MainProvider>
       <GoogleOAuthProvider clientId="520465797065-v47v1p1n63d2dvg96nhst0t6cpi67i0k.apps.googleusercontent.com">
         <App />
-        <Toaster />
+        <Toaster className='no-select' />
       </GoogleOAuthProvider>
     </MainProvider>
   </StrictMode>,

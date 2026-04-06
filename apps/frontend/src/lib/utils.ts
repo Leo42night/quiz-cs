@@ -1,7 +1,7 @@
 import { Cipher, type Question } from "shared";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { QUESTION_STORAGE_KEY } from "@/constants";
+import { QUESTION_STORAGE_KEY, SEED } from "@/constants";
 
 export function normalizeQuestion(q: any): Question {
   const answer =
@@ -46,6 +46,6 @@ export function validateAnswer(question: Question, answer: any) {
 }
 
 export function saveQuestionsToLocal(questions: Question[]): void {
-  const encodeQuestions = Cipher.encode(JSON.stringify(questions), import.meta.env.VITE_SEED);
+  const encodeQuestions = Cipher.encode(JSON.stringify(questions), SEED);
   localStorage.setItem(QUESTION_STORAGE_KEY, encodeQuestions);
 }

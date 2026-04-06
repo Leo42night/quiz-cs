@@ -64,6 +64,93 @@ async function seedQuestions() {
   }
 }
 
+async function seedUpdateQuestions() {
+  console.log("🔍 Loading data from JSON...");
+
+  // 1. Load data
+  const filePath = path.resolve(__dirname, "../quiz-update.json");
+  const fileContent = await Bun.file(filePath).text();
+  const questions = JSON.parse(fileContent);
+
+  if (!Array.isArray(questions) || questions.length === 0) {
+    console.log("⚠️ Data kosong atau tidak valid.");
+    return;
+  }
+
+  // 2. Transform & Preview
+  const question_prepared = questions.map((q: any) => ({
+    id: q.id, // Pastikan ID disertakan untuk update
+    category: q.category,
+    language: q.language,
+    type: q.type,
+    question: q.question,
+    answer: typeof q.answer === 'string' ? q.answer : JSON.stringify(q.answer),
+    correct_answer: typeof q.correct_answer === 'string' ? q.correct_answer : JSON.stringify(q.correct_answer),
+    difficulty: q.difficulty,
+    points: q.points,
+    updated_at: q.updated_at || Date.now()
+  }));
+
+  console.log("\n=== 📝 SEEDING PREVIEW (UPDATE MODE) ===");
+  console.log(`Total data terdeteksi: ${question_prepared.length} baris`);
+
+  // Tambahkan pengecekan jika data ada
+  if (question_prepared.length > 0) {
+    const sample = question_prepared[0];
+    console.log(`Sampel data (ID: ${sample?.id ?? 'N/A'}):`, {
+      question: sample?.question?.substring(0, 50) + "...",
+      updated_at: sample?.updated_at
+    });
+  } else {
+    console.log("⚠️ Tidak ada data untuk ditampilkan.");
+  }
+  console.log("========================================\n");
+
+  // 3. Konfirmasi
+  const input = prompt("Konfirmasi: Update database berdasarkan ID di atas? (y/N):");
+
+  if (input?.toLowerCase() === 'y') {
+    console.log("🚀 Memulai proses sinkronisasi...");
+    let updateCount = 0;
+    let errorCount = 0;
+
+    try {
+      // Kita gunakan loop karena Prisma tidak punya 'updateMany' dengan data berbeda per baris
+      for (const item of question_prepared) {
+        // Guard Clause: Pastikan ID ada dan bukan undefined/null
+        if (item.id === undefined || item.id === null) {
+          console.error(`❌ Skip: Baris ini tidak punya ID. Question: "${item.question?.substring(0, 20)}..."`);
+          errorCount++;
+          continue;
+        }
+
+        // Destructuring ID setelah dipastikan ada (Type Assertion 'as number' jika perlu)
+        const targetId = item.id as number;
+        const { id, ...dataToUpdate } = item;
+
+        await prisma.questions.upsert({
+          where: { id: targetId },
+          update: dataToUpdate,
+          create: item,
+        });
+
+        updateCount++;
+      }
+
+      console.log(`\n\n✅ Selesai!`);
+      console.log(`- Berhasil di-sync: ${updateCount} data`);
+      if (errorCount > 0) console.log(`- Gagal/Skip: ${errorCount} data`);
+
+    } catch (error) {
+      console.error("\n❌ Gagal saat proses update:", error);
+      throw error;
+    }
+  } else {
+    console.log("❌ Seeding dibatalkan.");
+    process.exit(0);
+  }
+}
+
 async function seedUserQuestion() {
   const newUserQuestions = [
     {
@@ -96,7 +183,8 @@ async function main() {
   try {
     console.log("start seed in...", process.cwd());
     // await seedStudents();
-    await seedQuestions();
+    // await seedQuestions();
+    await seedUpdateQuestions();
     // await seedUserQuestion();
   } catch (error) {
     console.error(error);
