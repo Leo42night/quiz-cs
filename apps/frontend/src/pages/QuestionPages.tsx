@@ -1,13 +1,17 @@
-import { useEffect, useState, useRef } from "react"
-import ReactMarkdown from "react-markdown"
-import rehypeHighlight from "rehype-highlight"
+import { useEffect, useState, useRef, Suspense, lazy } from "react"
+// Import statis tetap untuk yang ringan/core
 import { toast } from "sonner"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-import QuizSingle from "@/components/QuizSingle"
-import QuizMulti from "@/components/QuizMulti"
-import CodeFill from "@/components/CodeFill"
+// Lazy load komponen yang berat atau kondisional
+const ReactMarkdown = lazy(() => import("react-markdown"))
+const QuizSingle = lazy(() => import("@/components/QuizSingle"))
+const QuizMulti = lazy(() => import("@/components/QuizMulti"))
+const CodeFill = lazy(() => import("@/components/CodeFill"))
+
+// Note: rehypeHighlight biasanya diimport langsung di dalam ReactMarkdown atau sebagai plugin
+import rehypeHighlight from "rehype-highlight"
 
 import { submitAnswer } from "@/lib/submitAnswer"
 import { useAuth } from "@/context/MainContext"
@@ -237,17 +241,24 @@ export default function QuestionPage() {
   function renderQuestion() {
     if (!activeQuestion) return null;
 
-    switch (activeQuestion.type) {
-      case 1:
-        return <QuizSingle options={activeQuestion.answer as string[]} onAnswer={handleSetAnswer} />;
-      case 2:
-        return <QuizMulti options={activeQuestion.answer as string[]} onAnswer={handleSetAnswer} />;
-      case 3:
-      case 4:
-        return <CodeFill template={activeQuestion.answer as string} language={HL_LANGUAGES[activeQuestion.language]} onAnswer={handleSetAnswer} />;
-      default:
-        return null;
-    }
+    return (
+      // Loading fallback bisa berupa spinner atau skeleton
+      <Suspense fallback={<div className="h-20 animate-pulse bg-gray-100 rounded" />}>
+        {(() => {
+          switch (activeQuestion.type) {
+            case 1:
+              return <QuizSingle options={activeQuestion.answer as string[]} onAnswer={handleSetAnswer} />;
+            case 2:
+              return <QuizMulti options={activeQuestion.answer as string[]} onAnswer={handleSetAnswer} />;
+            case 3:
+            case 4:
+              return <CodeFill template={activeQuestion.answer as string} language={HL_LANGUAGES[activeQuestion.language]} onAnswer={handleSetAnswer} />;
+            default:
+              return null;
+          }
+        })()}
+      </Suspense>
+    );
   }
 
   // Tambah handler ini di dalam component
@@ -282,9 +293,11 @@ export default function QuestionPage() {
         <CardContent className="space-y-6">
           <form onSubmit={onSubmit} onKeyDown={handleFormKeyDown}>
             <div className="prose max-w-none mb-3">
-              <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
-                {activeQuestion.question}
-              </ReactMarkdown>
+              <Suspense fallback={<span>Loading question...</span>}>
+                <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+                  {activeQuestion.question}
+                </ReactMarkdown>
+              </Suspense>
             </div>
 
             {renderQuestion()}
@@ -307,7 +320,7 @@ export default function QuestionPage() {
       </CardHeader>
       <CardContent className="space-y-6">
         <h3>Seputar Quiz:</h3>
-        <ol>  
+        <ol>
           <li>Materi terbagi atas: BunJs, Tailwind, Git, ElysiaJs, & Docker.</li>
           <li>Tipe Quiz terbagi atas; Single answer, multi answer, exact code fill &amp; regex code fill</li>
           <li>Limit waktu menjawab tiap soal {TIME_LIMIT} detik</li>
