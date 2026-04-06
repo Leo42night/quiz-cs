@@ -72,6 +72,7 @@ function makeDefault(): Omit<CodeFillExactQuestion, "id"> {
     question: "",
     answer: "",
     correct_answer: [],
+    updated_at: 0
   };
 }
 

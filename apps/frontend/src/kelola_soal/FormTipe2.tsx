@@ -35,6 +35,7 @@ function makeDefault(): Omit<QuizMultiQuestion, "id"> {
     question: "",
     answer: ["", "", "", ""],
     correct_answer: [],
+    updated_at: 0
   };
 }
 

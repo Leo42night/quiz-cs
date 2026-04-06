@@ -56,6 +56,7 @@ function makeDefault(): Omit<CodeFillRegexQuestion, "id"> {
   return {
     type: 4, category: 1, language: 1, difficulty: 2, points: 20,
     question: "", answer: "", correct_answer: "",
+    updated_at: 0
   };
 }
 

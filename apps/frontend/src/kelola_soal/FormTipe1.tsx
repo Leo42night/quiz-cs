@@ -39,6 +39,7 @@ function makeDefault(): Omit<QuizSingleQuestion, "id"> {
     question: "",
     answer: ["", "", "", ""],
     correct_answer: 0,
+    updated_at: 0
   };
 }
 
