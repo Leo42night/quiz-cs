@@ -3,15 +3,12 @@ import { useEffect, useState, useRef, Suspense, lazy } from "react"
 import { toast } from "sonner"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import MarkdownLite from "@/components/MarkdownLite"
 
 // Lazy load komponen yang berat atau kondisional
-const ReactMarkdown = lazy(() => import("react-markdown"))
 const QuizSingle = lazy(() => import("@/components/QuizSingle"))
 const QuizMulti = lazy(() => import("@/components/QuizMulti"))
 const CodeFill = lazy(() => import("@/components/CodeFill"))
-
-// Note: rehypeHighlight biasanya diimport langsung di dalam ReactMarkdown atau sebagai plugin
-import rehypeHighlight from "rehype-highlight"
 
 import { submitAnswer } from "@/lib/submitAnswer"
 import { useAuth } from "@/context/MainContext"
@@ -145,10 +142,12 @@ export default function QuestionPage() {
       return;
     }
     const randomId = currentNotAnswered[Math.floor(Math.random() * currentNotAnswered.length)];
-    const found = questions.find((q) => q.id === randomId);
-
-    // --- Custom debug --- 
-    // const found = questions.find((q) => q.id === randomId && q.type === 4);
+    
+    // -- Main --
+    // const found = questions.find((q) => q.id === randomId);
+    // --- Custom debug: Per type --- 
+    const found = questions.find((q) => q.id === randomId && q.type === 4);
+    // --- Custom debug: Spesific ID ---
     // const randomId = 34;
     // const found = questions.find((q) => q.id === randomId);
     if (found) {
@@ -293,11 +292,7 @@ export default function QuestionPage() {
         <CardContent className="space-y-6">
           <form onSubmit={onSubmit} onKeyDown={handleFormKeyDown}>
             <div className="prose max-w-none mb-3">
-              <Suspense fallback={<span>Loading question...</span>}>
-                <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
-                  {activeQuestion.question}
-                </ReactMarkdown>
-              </Suspense>
+              <MarkdownLite content={activeQuestion.question} />
             </div>
 
             {renderQuestion()}

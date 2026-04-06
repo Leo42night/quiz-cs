@@ -30,19 +30,30 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            // 1. CEK YANG SPESIFIK DULU (Markdown & Highlighting)
-            if (
-              id.includes('node_modules/react-markdown') ||
-              id.includes('node_modules/rehype') ||
-              id.includes('node_modules/lowlight') ||
-              id.includes('node_modules/hast') // Tambahan: biasanya dipakai oleh rehype
-            ) {
-              return 'markdown-bundle';
+            // 1. Markdown Core
+            if (id.includes('node_modules/react-markdown') || id.includes('node_modules/vfile') || id.includes('node_modules/unified')) {
+              return 'markdown-core';
             }
 
-            // 2. CEK YANG UMUM TERAKHIR
+            // 2. Syntax Highlighter
+            if (id.includes('node_modules/highlight.js')) {
+              return 'hljs-bundle';
+            }
+
+            // 3. UI Components (Radix, Lucide, Sonner)
+            // Lucide seringkali sangat besar jika tidak ter-tree-shake dengan benar
+            if (id.includes('node_modules/lucide-react') || id.includes('node_modules/@radix-ui')) {
+              return 'ui-vendor';
+            }
+
+            // 4. React Core (React, React-DOM, Router)
+            if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+              return 'react-core';
+            }
+
+            // 5. Sisa Library lainnya
             if (id.includes('node_modules')) {
-              return 'vendor';
+              return 'vendor-others';
             }
           }
         }
