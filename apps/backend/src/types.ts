@@ -11,7 +11,7 @@ export interface SelectionInfo {
   text: string;
 }
 
-export interface QuestionType {
+export interface QuestionDBType {
   category: number;
   language: number;
   type: number;
@@ -20,6 +20,7 @@ export interface QuestionType {
   correct_answer: string; // number | number[] | string | string[]
   difficulty: number;
   points: number;
+  updated_at: number;
 };
 
 export interface UserMaxType {

@@ -1,7 +1,7 @@
 // routes/user.route.ts
 import Elysia, { t } from "elysia";
 import { UserService } from "../services/user.service";
-import { UserQuestionsService } from "../services/user_questions.service";
+import { UserQuestionService } from "../services/userQuestion.service";
 
 export const userRoute = new Elysia({ prefix: "/users" })
   .get("/by-email", async ({ query: { email }, status }) => {
@@ -43,7 +43,7 @@ export const userRoute = new Elysia({ prefix: "/users" })
 
   .get("/:id/question-ids", async ({ params: { id }, status }) => {
     try {
-      return await UserQuestionsService.findIdsByUser(Number(id));
+      return await UserQuestionService.findIdsByUser(Number(id));
     } catch (e) {
       return status(404, { message: "Riwayat quiz not found" });
     }
@@ -51,7 +51,7 @@ export const userRoute = new Elysia({ prefix: "/users" })
 
   .post("/:id/question-ids", async ({ params: { id }, body, status }) => {
     try {
-      return await UserQuestionsService.saveIdsByUser(Number(id), body.new_answered_question_ids);
+      return await UserQuestionService.saveIdsByUser(Number(id), body.new_answered_question_ids);
     } catch (e) {
       return status(404, { message: "Riwayat quiz failed to saved" });
     }

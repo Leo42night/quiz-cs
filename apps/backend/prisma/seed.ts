@@ -28,14 +28,15 @@ async function seedStudents() {
 async function seedQuestions() {
   console.log("seed Questions...");
   // 1. Load data
-  const fileContent = await Bun.file(path.resolve(__dirname, "../data-q-docker.json")).text();
+  const fileContent = await Bun.file(path.resolve(__dirname, "../questions.json")).text();
   const questions = JSON.parse(fileContent);
 
   // 2. Transform data
   const question_clear = questions.map((question: any) => ({
     ...question,
     answer: formatToString(question.answer),
-    correct_answer: formatToString(question.correct_answer)
+    correct_answer: formatToString(question.correct_answer),
+    updated_at: 0
   }));
 
   // 3. Tampilkan summary sebelum push

@@ -23,6 +23,7 @@ export interface BaseQuestion {
   difficulty: 1 | 2 | 3;
   points: number;
   question: string;
+  updated_at: number;
 }
 
 export interface QuizSingleQuestion extends BaseQuestion {

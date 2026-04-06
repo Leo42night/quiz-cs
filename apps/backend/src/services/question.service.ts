@@ -1,6 +1,6 @@
 // services/question.service.ts
+import type { Question } from "shared";
 import { QuestionModel } from "./../models/question.model";
-import type { Question } from "../utils";
 
 export const QuestionService = {
   async create(data: Question) {

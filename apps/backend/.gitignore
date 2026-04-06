@@ -43,6 +43,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 students-a.json
 students-b.json
 questions.json
+*backup.json
 *.sql
 db.sqlite-shm
 db.sqlite-wal

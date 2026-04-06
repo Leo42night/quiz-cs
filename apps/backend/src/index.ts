@@ -7,6 +7,7 @@ import { swagger } from "@elysiajs/swagger";
 import { userRoute } from "./routes/user.route";
 import { questionRoute } from "./routes/question.route";
 import { prisma } from "./../prisma/db";
+import { userQuestionRoute } from './routes/userQuestion.route';
 // ok
 const isBrowserRequest = (request: Request): boolean => {
   const origin = request.headers.get("origin");
@@ -49,7 +50,7 @@ const app = new Elysia()
   })
   .group("/api", (app) =>
     app
-      .use([userRoute, questionRoute])
+      .use([userRoute, questionRoute, userQuestionRoute])
       .get("/", () => "Hello API")
       .get("/test-user/:id", ({ params }) => {
         const id = Number(params.id);

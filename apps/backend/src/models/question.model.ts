@@ -1,7 +1,8 @@
 // models/question.model.ts
 import { prisma } from "./../../prisma/db";
-import { isJsonArray, type Question } from "../utils";
-import type { QuestionType } from "../types";
+import { isJsonArray } from "../utils";
+import type { Question } from "shared";
+import type { QuestionDBType } from "src/types";
 
 function saveToString(value: any) {
   if (Array.isArray(value)) return JSON.stringify(value);  // actual array → stringify
@@ -12,7 +13,7 @@ function saveToString(value: any) {
 
 export const QuestionModel = {
   async create(data: Question) {
-    const newData: QuestionType = { ...data, answer: saveToString(data.answer), correct_answer: saveToString(data.correct_answer) }
+    const newData: QuestionDBType = { ...data, answer: saveToString(data.answer), correct_answer: saveToString(data.correct_answer) }
     const result = await prisma.questions.create({ data: newData });
     return { success: true, lastInsertRowid: result.id };
   },
