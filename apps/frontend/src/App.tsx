@@ -8,7 +8,6 @@ import DaftarSoalPage from './kelola_soal/page/DaftarSoalPage';
 import FormPage from './kelola_soal/page/FormPage';
 import ExportCurlPage from './kelola_soal/page/ExportCurlPage';
 import HomePage from './pages/HomePage';
-import { useEffect } from 'react';
 
 // Ambil status env
 const isDevelopment = import.meta.env.VITE_ENV === 'development';
