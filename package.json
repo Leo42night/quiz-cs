@@ -7,11 +7,12 @@
   ],
   "scripts": {
     "dev": "bun run --filter '*' dev",
+    "devh": "bun run --filter '*' devh",
+    "devt": "bun run --env-file=apps/backend/.env.production --filter '*' devt",
     "db:dump": "bun run --filter backend db:dump",
     "db:seed": "bun run --filter backend db:seed",
     "prod:sql": "bun run --env-file=apps/backend/.env.production --filter backend prod:sql",
     "prod:seed": "bun run --env-file=apps/backend/.env.production --filter backend db:seed",
-    "devt": "bun run --env-file=apps/backend/.env.production --filter '*' devt",
     "start": "bun run --filter '*' start",
     "dev:frontend": "bun run --filter frontend dev",
     "dev:backend": "bun run --filter backend dev",

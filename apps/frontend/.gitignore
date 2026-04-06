@@ -30,3 +30,4 @@ credentials.json
 .env*.local
 dummy.json
 .env.prod
+bundle-analysis.html

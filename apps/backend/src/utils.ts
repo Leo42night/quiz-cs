@@ -1,3 +1,5 @@
+import path from "path";
+
 // ??? bagaimana shared dari monorepo & bisa push ke vercel framework elysia
 export type QuestionType = 1 | 2 | 3 | 4;
 

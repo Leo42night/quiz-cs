@@ -10,10 +10,14 @@
  *   correct_answer  : number     — index pilihan yang benar (0-based)
  */
 
+// !!! geser posisi urutan jawaban
+
 import { lazy, Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 import * as RadioGroup from "@radix-ui/react-radio-group";
-import { Trash2, PlusCircle, CheckCircle2 } from "lucide-react";
+import { Trash2, PlusCircle, CheckCircle2, GripVertical } from "lucide-react";
+// Import DnD
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -57,6 +61,37 @@ export default function FormTipe1({ initial, onSave, onReady, onCancel }: Props)
   useEffect(() => {
     onReady?.(() => setForm(makeDefault()));
   }, []);
+
+  // ─── Handler Drag & Drop ──────────────────────────────────────────────────
+  const onDragEnd = (result: DropResult) => {
+    const { source, destination } = result;
+
+    // 1. Jika tidak ada perubahan posisi, berhenti
+    if (!destination || (source.index === destination.index)) return;
+
+    const items = Array.from(form.answer);
+
+    // 2. Simpan referensi value jawaban yang benar SEBELUM dipindah
+    const correctValue = items[form.correct_answer];
+
+    // 3. Lakukan pemindahan item dalam array
+    const [reorderedItem] = items.splice(source.index, 1);
+    items.splice(destination.index, 0, reorderedItem);
+
+    // 4. Cari tahu di mana posisi "correctValue" sekarang di array yang baru
+    // Ini adalah cara paling aman daripada kalkulasi manual index
+    const newCorrect = items.indexOf(correctValue);
+
+    // Debugging untuk memastikan
+    console.log("Value Benar:", correctValue);
+    console.log("Index Baru:", newCorrect);
+
+    setForm((f) => ({
+      ...f,
+      answer: items,
+      correct_answer: newCorrect
+    }));
+  };
 
   const set = (key: string, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -118,63 +153,89 @@ export default function FormTipe1({ initial, onSave, onReady, onCancel }: Props)
         <CardHeader className="pb-2">
           <SectionHeading>Pilihan Jawaban</SectionHeading>
           <p className="text-xs text-muted-foreground">
-            Klik radio button untuk menandai <strong>satu</strong> jawaban yang benar.
+            Tarik ikon <GripVertical className="inline h-3 w-3" /> untuk mengubah urutan. Klik radio button untuk jawaban benar.
           </p>
         </CardHeader>
         <CardContent>
-          <RadioGroup.Root
-            value={String(form.correct_answer)}
-            onValueChange={(v) => set("correct_answer", +v)}
-            className="flex flex-col gap-2"
-          >
-            {form.answer.map((ans, idx) => {
-              const isCorrect = form.correct_answer === idx;
-              return (
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="answers">
+              {(provided) => (
                 <div
-                  key={idx}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors ${isCorrect
-                    ? "border-blue-300 bg-blue-50/60"
-                    : "border-border bg-muted/20 hover:bg-muted/40"
-                    }`}
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="flex flex-col gap-2"
                 >
-                  <RadioGroup.Item
-                    value={String(idx)}
-                    id={`opt-${idx}`}
-                    className="w-4 h-4 rounded-full border-2 border-primary shrink-0 data-[state=checked]:border-blue-500 focus:outline-none focus:ring-2 focus:ring-ring"
+                  <RadioGroup.Root
+                    value={String(form.correct_answer)}
+                    onValueChange={(v) => set("correct_answer", +v)}
+                    className="flex flex-col gap-2"
                   >
-                    <RadioGroup.Indicator className="flex items-center justify-center w-full h-full">
-                      <div className="w-2 h-2 rounded-full bg-blue-500" />
-                    </RadioGroup.Indicator>
-                  </RadioGroup.Item>
+                    {form.answer.map((ans, idx) => {
+                      const isCorrect = form.correct_answer === idx;
+                      return (
+                        <Draggable key={`drag-${idx}`} draggableId={`drag-${idx}`} index={idx}>
+                          {(dragProvided, snapshot) => (
+                            <div
+                              ref={dragProvided.innerRef}
+                              {...dragProvided.draggableProps}
+                              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all ${isCorrect
+                                ? "border-blue-300 bg-blue-50/60"
+                                : "border-border bg-muted/20"
+                                } ${snapshot.isDragging ? "shadow-lg border-primary/50 bg-background z-50 scale-[1.02]" : ""}`}
+                            >
+                              {/* Handle Drag */}
+                              <div
+                                {...dragProvided.dragHandleProps}
+                                className="cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+                              >
+                                <GripVertical className="h-4 w-4" />
+                              </div>
 
-                  <span className={`text-xs font-bold w-4 shrink-0 ${isCorrect ? "text-blue-600" : "text-muted-foreground"}`}>
-                    {OPTION_LABELS[idx]}
-                  </span>
+                              <RadioGroup.Item
+                                value={String(idx)}
+                                id={`opt-${idx}`}
+                                className="w-4 h-4 rounded-full border-2 border-primary shrink-0 data-[state=checked]:border-blue-500 focus:outline-none"
+                              >
+                                <RadioGroup.Indicator className="flex items-center justify-center w-full h-full">
+                                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                </RadioGroup.Indicator>
+                              </RadioGroup.Item>
 
-                  <Input
-                    value={ans}
-                    placeholder={`Pilihan ${OPTION_LABELS[idx]}`}
-                    onChange={(e) => setAnswer(idx, e.target.value)}
-                    className={`flex-1 h-8 text-sm ${isCorrect ? "border-blue-200" : ""}`}
-                  />
+                              <span className={`text-[10px] font-bold w-4 shrink-0 text-center ${isCorrect ? "text-blue-600" : "text-muted-foreground"}`}>
+                                {OPTION_LABELS[idx]}
+                              </span>
 
-                  {isCorrect && (
-                    <CheckCircle2 className="h-4 w-4 text-blue-500 shrink-0" />
-                  )}
+                              <Input
+                                value={ans}
+                                placeholder={`Pilihan ${OPTION_LABELS[idx]}`}
+                                onChange={(e) => setAnswer(idx, e.target.value)}
+                                className={`flex-1 h-8 text-xs ${isCorrect ? "border-blue-200 bg-background" : "bg-background/50"}`}
+                              />
 
-                  {form.answer.length > 2 && (
-                    <button
-                      type="button"
-                      onClick={() => removeOption(idx)}
-                      className="text-muted-foreground/50 hover:text-destructive transition-colors shrink-0"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  )}
+                              {isCorrect && (
+                                <CheckCircle2 className="h-4 w-4 text-blue-500 shrink-0" />
+                              )}
+
+                              {form.answer.length > 2 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeOption(idx)}
+                                  className="text-muted-foreground/30 hover:text-destructive transition-colors shrink-0"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {provided.placeholder}
+                  </RadioGroup.Root>
                 </div>
-              );
-            })}
-          </RadioGroup.Root>
+              )}
+            </Droppable>
+          </DragDropContext>
 
           {form.answer.length < 6 && (
             <Button

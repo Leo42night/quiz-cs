@@ -23,21 +23,20 @@ const isBrowserRequest = (request: Request): boolean => {
 
 const app = new Elysia()
   .use(cors({ origin: [process.env.FRONTEND_URL ?? ""] }))
-  .use([swagger()])
   .onRequest(({ request, set }) => {
     const url = new URL(request.url);
 
-    if(url.pathname.startsWith("/api")) {
+    if (url.pathname.startsWith("/api")) {
       const origin = request.headers.get("origin");
       const frontendUrl = process.env.FRONTEND_URL ?? "";
-  
+
       // Jika request dari FRONTEND_URL → langsung izinkan
       if (origin && origin === frontendUrl) return;
-  
+
       // Jika akses dari browser langsung → wajib ada ?key=
       if (isBrowserRequest(request)) {
         const key = url.searchParams.get("key");
-  
+
         if (!key || key !== process.env.API_KEY) {
           set.status = 401;
           return { message: "Unauthorized: missing or invalid key" };
@@ -74,9 +73,12 @@ const app = new Elysia()
   });
 
 if (process.env.NODE_ENV != "production") {
+  app.use(swagger())
   app.listen(3000);
   console.log(`🦊 Backend → http://localhost:3000`);
-  console.log(`🦊 DATABASE_URL: ${process.env.DATABASE_URL}`);
+  const dbPath = path.resolve(__dirname, "../dev.db");
+  const DATABASE_URL = process.env.DATABASE_URL || `file:${dbPath}`;
+  console.log(`🦊 DATABASE_URL: ${DATABASE_URL}`);
 }
 
 export default app;

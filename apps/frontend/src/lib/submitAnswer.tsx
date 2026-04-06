@@ -36,17 +36,37 @@ export async function submitAnswer(
       break;
 
     case 4:
-      // ['error', 'error'] → new Set → ['error'] → join → "error" → ✅
-      // ['error', 'message'] → ['error', 'message'] → join → "errormessage" → ❌
-      // Regex: correct_answer "console\\.(log|error)"
-      // userAnswer bisa string tunggal atau array string dari CodeFill
-      // console.log(correctAnswer, userAnswer)
-      const inputString = Array.isArray(userAnswer)
-        ? [...new Set(userAnswer)].join("")
-        : userAnswer;
-      const regex = new RegExp(`^(${correctAnswer})$`);
-      isCorrect = regex.test(inputString);
-      break;
+      // Pastikan correctAnswer sudah di-parse menjadi array jika string JSON
+      const patterns = Array.isArray(correctAnswer)
+        ? correctAnswer
+        : [correctAnswer];
+
+      // Pastikan userAnswer juga diperlakukan sebagai array
+      const userAnswers = Array.isArray(userAnswer)
+        ? userAnswer
+        : [userAnswer];
+
+      // Logika Validasi:
+      // 1. Jumlah placeholder harus sama dengan jumlah jawaban user
+      if (patterns.length !== userAnswers.length) {
+        isCorrect = false;
+      } else {
+        // 2. Cek setiap indeks: userAnswers[i] harus cocok dengan regex patterns[i]
+        isCorrect = patterns.every((pattern, i) => {
+          try {
+            // Tambahkan ^ dan $ agar match secara persis (exact match)
+            // Gunakan template literal untuk memastikan pattern bersih
+            const regex = new RegExp(`^${pattern}$`);
+            const isMatch = regex.test(userAnswers[i]);
+
+            console.log(`Testing index [${i}]: "${userAnswers[i]}" against /${pattern}/ -> ${isMatch}`);
+            return isMatch;
+          } catch (e) {
+            console.error("Invalid Regex Pattern:", pattern);
+            return false;
+          }
+        });
+      }
   }
 
   // Simulasi fetch (Opsional jika ingin tetap kirim ke API)

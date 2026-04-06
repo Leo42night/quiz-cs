@@ -6,6 +6,7 @@ interface Props {
   template: string
   language: string
   onAnswer: (answers: string[]) => void
+  classNames?: string
 }
 
 function decodeEscapes(str: string) {
@@ -14,7 +15,7 @@ function decodeEscapes(str: string) {
     .replace(/\\t/g, "\t")
 }
 
-export default function CodeFill({ template, language, onAnswer }: Props) {
+export default function CodeFill({ template, language, onAnswer, classNames = "" }: Props) {
   const [answers, setAnswers] = useState<string[]>([])
   const decodedTemplate = decodeEscapes(template)
 
@@ -38,7 +39,7 @@ export default function CodeFill({ template, language, onAnswer }: Props) {
   let blankIndex = 0
 
   return (
-    <pre className="hljs px-4 py-2 rounded-md overflow-x-auto">
+    <pre className={`hljs px-4 py-2 rounded-md overflow-x-auto ${classNames}`}>
       <code>
         {parts.map((p, i) => {
           if (p.match(/<<\d+>>/)) {

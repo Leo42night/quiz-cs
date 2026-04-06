@@ -3,7 +3,7 @@
  *
  * Editor kode interaktif menggunakan CodeJar + highlight.js.
  * Mendukung syntax highlighting real-time saat mengetik,
- * serta rendering visual placeholder [ANS:xxx] sebagai fill-blank.
+ * Menggunakan placeholder <<N>>
  *
  * Cara pakai:
  *   <CodeEditor
@@ -50,26 +50,31 @@ function escHtml(s: string) {
 }
 
 /**
- * Highlight code while preserving [ANS:xxx] as styled spans.
- * Strategy: split on placeholders, highlight each plain segment
- * individually, then inject blank spans between them.
+ * Fungsi pembantu untuk mendeteksi placeholder baru.
+ * Regex: <<(\d+)>> 
+ * Menangkap kurung siku ganda dan angka di dalamnya.
  */
 function buildHtml(code: string, language: string, blankStyle: BlankStyle): string {
   const blankClass =
     blankStyle === "regex" ? "fill-blank fill-blank-regex" : "fill-blank";
 
-  // split preserving the delimiter
-  const parts = code.split(/(\[ANS:[^\]]*\])/);
+  // 1. MODIFIKASI REGEX: split berdasarkan <<angka>>
+  // Menggunakan capturing group agar delimiter tetap ada di hasil array parts
+  const parts = code.split(/(<<\d+>>)/);
 
   return parts
     .map((part) => {
-      if (part.startsWith("[ANS:")) {
-        // const label = part.slice(5, -1) || "…";
-        const label = part || "…";
-        // console.log("part", part, label);
-        return `<span class="${blankClass}" data-ans="${escHtml(label)}">${escHtml(label)}</span>`;
+      // 2. CEK FORMAT BARU: apakah part dimulai dengan << dan diakhiri >>
+      if (/^<<\d+>>$/.test(part)) {
+        // Ambil angka N untuk keperluan styling atau label jika perlu
+        const size = part.match(/\d+/)?.[0] || "5";
+
+        // Render sebagai span dengan class khusus agar bisa di-style di CSS
+        // Kita simpan value aslinya (misal <<10>>) di attribute atau teks
+        return `<span class="${blankClass}" data-size="${size}">${escHtml(part)}</span>`;
       }
-      // highlight plain segment — ignoreIllegals so partial code doesn't throw
+
+      // Highlight syntax untuk segmen kode biasa
       try {
         return hljs.highlight(part, { language, ignoreIllegals: true }).value;
       } catch {

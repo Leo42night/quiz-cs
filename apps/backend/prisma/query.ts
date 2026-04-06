@@ -4,14 +4,15 @@ import { readFileSync } from "fs";
 
 const sql = readFileSync(join(__dirname, "../data.sql"), "utf-8");
 
-// Regex handle statement escape element
 const statements = sql
-  .split(/;(?=(?:[^']*'[^']*')*[^']*$)/) // Memotong ";" hanya jika di luar tanda petik
+  .split(";")
   .map(s => s.trim())
-  .filter(s => s.length > 0 && !s.startsWith('--')); // Abaikan komentar SQL
+  .filter(s => s.length > 0);
 
-for (const statement of statements) {
-  await prisma.$executeRawUnsafe(statement);
-}
+await prisma.$transaction(async (tx) => {
+  for (const statement of statements) {
+    await tx.$executeRawUnsafe(statement);
+  }
+});
 
 await prisma.$disconnect();

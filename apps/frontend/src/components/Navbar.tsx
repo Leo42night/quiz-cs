@@ -19,7 +19,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Save, Timer } from "lucide-react";
-import { BACKEND_URL } from "@/types";
+import { BACKEND_URL } from "@/constants";
 import { TIME_LIMIT } from "@/constants";
 
 export function Navbar() {
@@ -35,6 +35,8 @@ export function Navbar() {
   } = useAuth();
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [loadingSaveScore, setLoadingSaveScore] = useState(false);
+  const [openScore, setOpenScore] = useState(false);
+  const [openScoreMax, setOpenScoreMax] = useState(false);
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -86,7 +88,9 @@ export function Navbar() {
       });
       if (!resIds.ok) throw new Error(`Jawaban quiz gagal disimpan: ${resIds.status}`);
 
-      toast.success(`Score & ${newAnsweredQuestionIds.length} jawaban berhasil disimpan`);
+      toast.success(`Score & ${newAnsweredQuestionIds.length} jawaban berhasil disimpan`, {
+        duration: 1000
+      });
 
       // Reset setelah berhasil simpan
       setNewAnsweredQuestionIds([]);
@@ -130,7 +134,7 @@ export function Navbar() {
                 <div className="flex flex-col items-end md:gap-2 mr-1">
                   {/* Label Header */}
                   <span className="text-[6px] sm:text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none">
-                    Your Progress
+                    Your Score
                   </span>
 
                   <div className="flex items-center gap-2">
@@ -158,7 +162,7 @@ export function Navbar() {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
-                          <p>Simpan progres Anda sekarang!</p>
+                          <p>Simpan score Anda!</p>
                         </TooltipContent>
                       </Tooltip>
                     )}
@@ -170,7 +174,7 @@ export function Navbar() {
                     >
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="text-primary font-bold cursor-help">{user.score}</span>
+                          <span onClick={() => setOpenScore(!openScore)} className="text-primary font-bold cursor-help">{user.score}</span>
                         </TooltipTrigger>
                         <TooltipContent><p>Skor saat ini</p></TooltipContent>
                       </Tooltip>
@@ -179,7 +183,7 @@ export function Navbar() {
 
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="text-muted-foreground cursor-help">{user.score_max}</span>
+                          <span onClick={() => setOpenScoreMax(!openScoreMax)} className="text-muted-foreground cursor-help">{user.score_max}</span>
                         </TooltipTrigger>
                         <TooltipContent><p>Skor maksimal</p></TooltipContent>
                       </Tooltip>

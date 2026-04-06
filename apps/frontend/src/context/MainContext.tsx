@@ -1,10 +1,11 @@
 // MainContext.tsx
-import { TIME_LIMIT } from "@/constants";
+import { TIME_LIMIT, BACKEND_URL, NOT_ANS_Q_IDS_STORAGE_KEY } from "@/constants";
 import { normalizeQuestion, safeParse } from "@/lib/utils";
-import { BACKEND_URL, NEW_ANS_Q_IDS_STORAGE_KEY, QUESTION_STORAGE_KEY } from "@/types";
+import { NEW_ANS_Q_IDS_STORAGE_KEY, QUESTION_STORAGE_KEY } from "@/constants";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Cipher, type Question } from "shared";
 import { toast } from "sonner";
+import { RotateCw } from "lucide-react" // Tambahkan ini
 
 interface UserProfile {
   id: number;
@@ -18,11 +19,13 @@ interface UserProfile {
 interface MainContextType {
   user: UserProfile | null;
   questions: Question[];
-  setQuestions: React.Dispatch<React.SetStateAction<Question[]>>; 
+  setQuestions: React.Dispatch<React.SetStateAction<Question[]>>;
   handleLogin: (googleData: any) => Promise<UserProfile | undefined>;
   logout: () => void;
   newAnsweredQuestionIds: number[];
   setNewAnsweredQuestionIds: React.Dispatch<React.SetStateAction<number[]>>;
+  notAnsweredQuestionIds: number[];
+  setNotAnsweredQuestionIds: React.Dispatch<React.SetStateAction<number[]>>;
   activeQuestion: Question | null;
   setActiveQuestion: React.Dispatch<React.SetStateAction<Question | null>>;
   timeLimit: number;
@@ -55,6 +58,9 @@ export function MainProvider({ children }: { children: ReactNode }) {
     () => safeParse(localStorage.getItem(NEW_ANS_Q_IDS_STORAGE_KEY), [])
   );
   const [isScoreMax, setIsScoreMax] = useState(false);
+  const [notAnsweredQuestionIds, setNotAnsweredQuestionIds] = useState<number[]>(
+    () => safeParse(localStorage.getItem(NOT_ANS_Q_IDS_STORAGE_KEY), [])
+  );
 
   // handle paksa periksa jawaban sebelum time habis
   const onTimeUpRef = useRef<(() => Promise<void>) | null>(null);
@@ -164,7 +170,7 @@ export function MainProvider({ children }: { children: ReactNode }) {
             setActiveQuestion(null);
 
             // Toast aman di sini karena isFinished mengunci eksekusi ganda
-            toast.warning("Waktu habis!", { id: "time-up" });
+            toast.warning("Waktu habis!", { id: "time-up", duration: 1000 });
           };
           run();
           return 0;
@@ -210,6 +216,8 @@ export function MainProvider({ children }: { children: ReactNode }) {
         logout,
         newAnsweredQuestionIds,
         setNewAnsweredQuestionIds,
+        notAnsweredQuestionIds,
+        setNotAnsweredQuestionIds,
         activeQuestion,
         setActiveQuestion,
         timeLimit,

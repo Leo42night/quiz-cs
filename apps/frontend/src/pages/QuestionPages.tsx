@@ -1,25 +1,23 @@
-import { useEffect, useState, useRef, Suspense, lazy } from "react"
-// Import statis tetap untuk yang ringan/core
-import { toast } from "sonner"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import MarkdownLite from "@/components/MarkdownLite"
+// QuestionPage.tsx
+import { useEffect, useState, useRef, Suspense, lazy } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
 
-// Lazy load komponen yang berat atau kondisional
-const QuizSingle = lazy(() => import("@/components/QuizSingle"))
-const QuizMulti = lazy(() => import("@/components/QuizMulti"))
-const CodeFill = lazy(() => import("@/components/CodeFill"))
+const QuizSingle = lazy(() => import("@/components/QuizSingle"));
+const QuizMulti = lazy(() => import("@/components/QuizMulti"));
+const CodeFill = lazy(() => import("@/components/CodeFill"));
 
-import { submitAnswer } from "@/lib/submitAnswer"
-import { useAuth } from "@/context/MainContext"
-import { ANS_Q_IDS_STORAGE_KEY, BACKEND_URL, NOT_ANS_Q_IDS_STORAGE_KEY, type AnsweredLog } from "@/types"
-import { safeParse, validateAnswer } from "@/lib/utils"
-import { CATEGORIES, HL_LANGUAGES, LANGUAGES } from "@/constants"
-import { DifficultyStars, TypeBadge } from "@/components/shared"
-import { Badge } from "@/components/ui/badge"
-import fireCelebration from "@/components/Confetty"
-
-import { TIME_LIMIT } from "@/constants"
+import { submitAnswer } from "@/lib/submitAnswer";
+import { useAuth } from "@/context/MainContext";
+import { ANS_Q_IDS_STORAGE_KEY, NOT_ANS_Q_IDS_STORAGE_KEY, HL_LANGUAGES, CATEGORIES, LANGUAGES } from "@/constants";
+import { safeParse, validateAnswer } from "@/lib/utils";
+import { DifficultyStars, TypeBadge } from "@/components/shared";
+import fireCelebration from "@/components/Confetty";
 
 export default function QuestionPage() {
   const {
@@ -31,28 +29,29 @@ export default function QuestionPage() {
     onTimeUpRef,
     addScore,
     isScoreMax,
-    setIsScoreMax
+    setIsScoreMax,
+    notAnsweredQuestionIds,
+    setNotAnsweredQuestionIds
   } = useAuth();
 
-  const [answer, setAnswer] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
-
-  const [answeredQuestionIds, setAnsweredQuestionIds] = useState<number[]>(
-    () => safeParse(localStorage.getItem("answered_question_ids"), [])
-  );
-  const [notAnsweredQuestionIds, setNotAnsweredQuestionIds] = useState<number[]>(
-    () => safeParse(localStorage.getItem(NOT_ANS_Q_IDS_STORAGE_KEY), [])
-  );
-
-  // --- START: handle paksa periksa answer ketika timer habis
+  const navigate = useNavigate();
+  const [answer, setAnswer] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   const answerRef = useRef<any>(null);
-  // Wrapper setter agar ref selalu sync dengan state
+
   const handleSetAnswer = (val: any) => {
     answerRef.current = val;
     setAnswer(val);
   };
 
-  // Register/unregister handler tiap activeQuestion berubah
+  // Redirect jika tidak ada soal aktif (mencegah akses langsung URL)
+  useEffect(() => {
+    if (!activeQuestion && questions.length > 0) {
+      navigate("/");
+    }
+  }, [activeQuestion, questions, navigate]);
+
+  // Handler Timer Habis
   useEffect(() => {
     if (!activeQuestion) {
       onTimeUpRef.current = null;
@@ -61,72 +60,26 @@ export default function QuestionPage() {
 
     onTimeUpRef.current = async () => {
       const currentAnswer = answerRef.current;
-
-      // Answer kosong → skip, biarkan context lanjut ke setActiveQuestion + toast.warning
       if (!validateAnswer(activeQuestion, currentAnswer)) return;
 
       try {
         const result = await submitAnswer(activeQuestion, currentAnswer);
-
         if (result.correct) {
-          toast.success(`Benar! ✓ +${activeQuestion.points} poin`, { position: "top-left" })
+          toast.success(`Waktu Habis! Benar ✓ +${activeQuestion.points} pts`);
           handleCorrect(activeQuestion.id, activeQuestion.points);
         } else {
-          toast.error("Salah ✗", { position: "top-left" })
-          getNextQuestion(notAnsweredQuestionIds); // ← tambah ini
+          toast.error("Waktu Habis! Jawaban Salah ✗");
+          getNextQuestion(notAnsweredQuestionIds);
         }
       } catch (e) {
-        console.error(`Gagal submit ke server. ${e}`)
-        toast.error(`Gagal terhubung ke server. ${e}`, { position: "top-center" });
+        toast.error("Gagal sinkronisasi waktu.");
       }
-      // Setelah resolve, context akan lanjut: setActiveQuestion(null) → toast.warning
     };
 
-    return () => {
-      onTimeUpRef.current = null;
-    };
+    return () => { onTimeUpRef.current = null; };
   }, [activeQuestion]);
 
-
-  // --- END: handle paksa periksa answer ketika timer habis
-
-
-  const fetchAnsweredIds = async () => {
-    if (!user || questions.length === 0) return;
-    // console.log("fetchAnsweredIds user", user);
-    const res = await fetch(`${BACKEND_URL}/api/users/${user.id}/question-ids`);
-    if (!res.ok) return toast.error(`Gagal ambil riwayat quiz user: ${res.statusText}`);
-
-    const userQuestionsIds: number[] = await res.json();
-    setAnsweredQuestionIds(userQuestionsIds);
-    localStorage.setItem(ANS_Q_IDS_STORAGE_KEY, JSON.stringify(userQuestionsIds));
-
-    // Hitung soal yang belum dijawab
-    if (userQuestionsIds.length < questions.length) {
-      const unanswered = questions
-        .filter((q) => !userQuestionsIds.includes(q.id))
-        .map((q) => q.id);
-      setNotAnsweredQuestionIds(unanswered);
-      localStorage.setItem(NOT_ANS_Q_IDS_STORAGE_KEY, JSON.stringify(unanswered));
-    } else {
-      // Semua soal sudah dijawab
-      setNotAnsweredQuestionIds([]);
-      localStorage.setItem(NOT_ANS_Q_IDS_STORAGE_KEY, JSON.stringify([]));
-    }
-  };
-
-  useEffect(() => {
-    fetchAnsweredIds();
-  }, [user, questions]);
-
-  // Jika notAnsweredQuestionIds kosong, reload answeredQuestionIds dari server
-  useEffect(() => {
-    if (notAnsweredQuestionIds.length === 0 && user && questions.length > 0) {
-      fetchAnsweredIds();
-    }
-  }, [notAnsweredQuestionIds]);
-
-  // jawaban berhasil
+  // Selebrasi Max Score
   useEffect(() => {
     if (!user || isScoreMax) return;
     if (user.score >= user.score_max) {
@@ -139,65 +92,38 @@ export default function QuestionPage() {
   const getNextQuestion = (currentNotAnswered: number[]) => {
     if (currentNotAnswered.length === 0) {
       setActiveQuestion(null);
+      navigate("/"); // Kembali ke home jika habis
       return;
     }
     const randomId = currentNotAnswered[Math.floor(Math.random() * currentNotAnswered.length)];
-    
-    // -- Main --
-    // const found = questions.find((q) => q.id === randomId);
-    // --- Custom debug: Per type --- 
-    const found = questions.find((q) => q.id === randomId && q.type === 4);
-    // --- Custom debug: Spesific ID ---
-    // const randomId = 34;
-    // const found = questions.find((q) => q.id === randomId);
+    const found = questions.find((q) => q.id === randomId);
+
     if (found) {
-      // console.log("activeQuestion", found);
       setActiveQuestion(found);
       setAnswer(null);
-      answerRef.current = null; // reset ref juga
+      answerRef.current = null;
     } else {
       getNextQuestion(currentNotAnswered);
     }
   };
 
-  // Helper: hapus id dari notAnswered lalu lanjut ke soal berikutnya
   const handleCorrect = (qId: number, points: number) => {
-    saveProgress(qId);
     if (!user) return;
 
-    addScore(points);
-    setNewAnsweredQuestionIds((prev) =>
-      prev.includes(qId) ? prev : [...prev, qId]
-    );
-
-    // ✅ Hitung updated di luar updater, lalu panggil setState dan getNextQuestion terpisah
-    const updated = notAnsweredQuestionIds.filter((id) => id !== qId);
-    localStorage.setItem(NOT_ANS_Q_IDS_STORAGE_KEY, JSON.stringify(updated));
-    setNotAnsweredQuestionIds(updated);
-    getNextQuestion(updated); // aman — dipanggil di event handler, bukan di updater
-  };
-
-  const getRandomQuestion = () => {
-    if (!user) return toast.error("Silakan Login dulu!", { position: "top-left" });
-    if (questions.length === 0 || notAnsweredQuestionIds.length === 0) {
-      toast.info("Semua soal sudah dijawab!");
-      return;
-    }
-    getNextQuestion(notAnsweredQuestionIds);
-  };
-
-  const saveProgress = (qId: number) => {
-    if (!user) return;
-
-    const existingLogs: AnsweredLog[] = safeParse(localStorage.getItem(ANS_Q_IDS_STORAGE_KEY), []);
-    const isAlreadyAnswered = existingLogs.some(
-      (log) => log.user_id === user.id && log.question_id === qId
-    );
-
-    if (!isAlreadyAnswered) {
+    // Save to LocalStorage Logs
+    const existingLogs = safeParse(localStorage.getItem(ANS_Q_IDS_STORAGE_KEY), []);
+    if (!existingLogs.some((log: any) => log.question_id === qId)) {
       const updatedLogs = [...existingLogs, { user_id: user.id, question_id: qId }];
       localStorage.setItem(ANS_Q_IDS_STORAGE_KEY, JSON.stringify(updatedLogs));
     }
+
+    addScore(points);
+    setNewAnsweredQuestionIds((prev) => prev.includes(qId) ? prev : [...prev, qId]);
+
+    const updated = notAnsweredQuestionIds.filter((id) => id !== qId);
+    localStorage.setItem(NOT_ANS_Q_IDS_STORAGE_KEY, JSON.stringify(updated));
+    setNotAnsweredQuestionIds(updated);
+    getNextQuestion(updated);
   };
 
   async function onSubmit(e?: React.FormEvent) {
@@ -205,126 +131,70 @@ export default function QuestionPage() {
     if (!activeQuestion) return;
 
     if (!validateAnswer(activeQuestion, answer)) {
-      toast.error("Jawaban belum lengkap!", { position: "top-right" });
-      return;
+      return toast.error("Jawaban belum lengkap!");
     }
 
     setLoading(true);
     try {
       const result = await submitAnswer(activeQuestion, answer);
-
       if (result.correct) {
-        toast.success(`Benar! +${activeQuestion.points} poin`, {
-          duration: 1000,
-          position: "top-left",
-          className: "w-full max-w-[90vw] md:max-w-md text-sm md:text-base"
-        });
+        toast.success(`Benar! +${activeQuestion.points} poin`, { position: "top-left" });
         handleCorrect(activeQuestion.id, activeQuestion.points);
       } else {
-        toast.error("Jawaban Salah", {
-          duration: 1000,
-          className: "w-full max-w-[90vw] md:max-w-md text-sm md:text-base"
-        });
-        getNextQuestion(notAnsweredQuestionIds); // ← tambah ini
+        toast.error("Jawaban Salah");
+        getNextQuestion(notAnsweredQuestionIds);
       }
     } catch (e) {
-      toast.error("Error", {
-        description: `Gagal terhubung ke server. ${e}`,
-        position: "top-center"
-      });
+      toast.error("Gagal terhubung ke server.");
     } finally {
       setLoading(false);
     }
   }
 
-  function renderQuestion() {
-    if (!activeQuestion) return null;
+  if (!activeQuestion) return null;
 
-    return (
-      // Loading fallback bisa berupa spinner atau skeleton
-      <Suspense fallback={<div className="h-20 animate-pulse bg-gray-100 rounded" />}>
-        {(() => {
-          switch (activeQuestion.type) {
-            case 1:
-              return <QuizSingle options={activeQuestion.answer as string[]} onAnswer={handleSetAnswer} />;
-            case 2:
-              return <QuizMulti options={activeQuestion.answer as string[]} onAnswer={handleSetAnswer} />;
-            case 3:
-            case 4:
-              return <CodeFill template={activeQuestion.answer as string} language={HL_LANGUAGES[activeQuestion.language]} onAnswer={handleSetAnswer} />;
-            default:
-              return null;
-          }
-        })()}
-      </Suspense>
-    );
-  }
-
-  // Tambah handler ini di dalam component
-  const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
-    // Type 3 & 4 (CodeFill) — biarkan Enter natural di textarea
-    if (activeQuestion?.type === 3 || activeQuestion?.type === 4) return;
-
-    if (e.key === "Enter" && !e.shiftKey && !loading) {
-      e.preventDefault();
-      onSubmit();
-    }
-  };
-
-  if (activeQuestion) {
-    return (
-      <Card className="max-w-3xl my-auto mx-auto mt-2 sm:mt-8">
-        <CardHeader className="font-semibold">
+  return (
+    <div className="pt-2 sm:pt-8">
+      <Card className="max-w-3xl mx-auto border-t-4 border-t-primary">
+        <CardHeader className="pb-2">
           <div className="flex flex-wrap gap-1.5 items-center">
             <TypeBadge type={activeQuestion.type} />
-            <Badge variant="secondary" className="text-[11px]">
-              {CATEGORIES[activeQuestion.category]}
-            </Badge>
-            <Badge variant="secondary" className="text-[11px]">
-              {LANGUAGES[activeQuestion.language]}
-            </Badge>
+            <Badge variant="secondary" className="text-[11px]">{CATEGORIES[activeQuestion.category]}</Badge>
+            <Badge variant="secondary" className="text-[11px]">{LANGUAGES[activeQuestion.language]}</Badge>
             <DifficultyStars level={activeQuestion.difficulty} />
-            <Badge variant="outline" className="text-[11px]">
-              {activeQuestion.points} pts
-            </Badge>
+            <Badge variant="outline" className="text-[11px]">{activeQuestion.points} pts</Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <form onSubmit={onSubmit} onKeyDown={handleFormKeyDown}>
-            <div className="prose max-w-none mb-3">
-              <MarkdownLite content={activeQuestion.question} />
+          <form onSubmit={onSubmit} onKeyDown={(e) => {
+            if ((activeQuestion.type === 3 || activeQuestion.type === 4) || loading) return;
+            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSubmit(); }
+          }}>
+            <div className="prose max-w-none dark:prose-invert mb-6">
+              <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+                {activeQuestion.question}
+              </ReactMarkdown>
             </div>
 
-            {renderQuestion()}
+            <Suspense fallback={<div className="h-32 animate-pulse bg-muted rounded-lg" />}>
+              {activeQuestion.type === 1 && <QuizSingle options={activeQuestion.answer as string[]} onAnswer={handleSetAnswer} />}
+              {activeQuestion.type === 2 && <QuizMulti options={activeQuestion.answer as string[]} onAnswer={handleSetAnswer} />}
+              {(activeQuestion.type === 3 || activeQuestion.type === 4) && (
+                <CodeFill template={activeQuestion.answer as string} language={HL_LANGUAGES[activeQuestion.language]} onAnswer={handleSetAnswer} />
+              )}
+            </Suspense>
 
-            <Button type="submit" disabled={loading} className="mt-4">
-              {loading ? "Submitting..." : "Submit Answer"}
-            </Button>
+            <div className="mt-8 flex justify-between items-center">
+              <Button type="button" variant="ghost" onClick={() => navigate("/")}>
+                Batal
+              </Button>
+              <Button type="submit" disabled={loading} className="px-8 font-bold">
+                {loading ? "Memeriksa..." : "Kirim Jawaban"}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
-    );
-  }
-
-  return (
-    <Card className="max-w-3xl mx-auto mt-8">
-      <CardHeader className="font-semibold">
-        <Button onClick={getRandomQuestion} disabled={questions.length !== 0 && answeredQuestionIds.length !== 0 && notAnsweredQuestionIds.length === 0}>
-          {questions.length !== 0 && answeredQuestionIds.length !== 0 && notAnsweredQuestionIds.length === 0 ? "Semua Soal Selesai 🎉" : "Mulai Quiz"}
-        </Button>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <h3>Seputar Quiz:</h3>
-        <ol>
-          <li>Materi terbagi atas: BunJs, Tailwind, Git, ElysiaJs, & Docker.</li>
-          <li>Tipe Quiz terbagi atas; Single answer, multi answer, exact code fill &amp; regex code fill</li>
-          <li>Limit waktu menjawab tiap soal {TIME_LIMIT} detik</li>
-          <li>Tekan tombol "Simpan Score" di kanan atas layar untuk menyimpan</li>
-        </ol>
-        <p className="text-sm text-muted-foreground">
-          Progress: {answeredQuestionIds.length} / {questions.length} soal dijawab
-        </p>
-      </CardContent>
-    </Card>
+    </div>
   );
 }

@@ -5,8 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "bun --watch src/index.ts",
+    "devh": "bun run dev",
     "devt": "bun run dev:turso",
     "db:sql": "bun prisma/query.ts",
+    "db:save": "bun prisma/save.ts",
     "db:seed": "bun prisma/seed.ts",
     "start": "bun dist/index.mjs",
     "build": "prisma generate && tsdown",

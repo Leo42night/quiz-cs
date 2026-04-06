@@ -28,6 +28,7 @@ model questions {
   difficulty     Int
   points         Int
   user_questions user_questions[]
+  createdAt      Int @default(0)    
 }
 
 model user_questions {

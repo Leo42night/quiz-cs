@@ -1,8 +1,7 @@
 import { Cipher, type Question } from "shared";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { BACKEND_URL } from "@/constants";
-import { QUESTION_STORAGE_KEY } from "@/types";
+import { QUESTION_STORAGE_KEY } from "@/constants";
 
 export function normalizeQuestion(q: any): Question {
   const answer =
@@ -17,53 +16,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function saveQuestionsToLocal(questions: Question[]): void {
-  const encodeQuestions = Cipher.encode(JSON.stringify(questions), import.meta.env.VITE_SEED);
-  localStorage.setItem(QUESTION_STORAGE_KEY, encodeQuestions);
-}
-
-export async function saveQuestionToDB(question: Omit<Question, "id">): Promise<Response> {
-  const resQ = await fetch(`${BACKEND_URL}/api/questions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(question),
-  });
-  return resQ;
-}
-
-export async function updateQuestion(id: number, question: Omit<Question, "id">): Promise<Response> {
-  const resQ = await fetch(`${BACKEND_URL}/api/questions/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(question),
-  });
-  return resQ;
-}
-
-export function editorTemplateToApi(template: string): string {
-  // console.log("template", template);
-  return template
-    .replace(/\[ANS:([^\]]*)\]/g, (_m, ans: string) => `<<${Math.max(ans.length, 4)}>>`)
-    .replace(/\n/g, "\\n")
-    .replace(/\t/g, "\\t");
-}
-
-export function apiTemplateToEditor(apiAnswer: string, answers: string[]): string {
-  let i = 0;
-  return apiAnswer
-    .replace(/\\n/g, "\n")
-    .replace(/\\t/g, "\t")
-    .replace(/<<\d+>>/g, () => `[ANS:${answers[i++] ?? ""}]`);
-}
-
-export function extractAnswersFromTemplate(template: string): string[] {
-  return Array.from(template.matchAll(/\[ANS:([^\]]*)\]/g)).map((m) => m[1]);
-}
-
-export function formatArray(array: any) {
-  return Array.isArray(array) ? JSON.stringify(array) : array;
-}
-
 export function safeParse<T>(value: string | null, fallback: T): T {
   try {
     return value ? JSON.parse(value) : fallback;
@@ -71,18 +23,6 @@ export function safeParse<T>(value: string | null, fallback: T): T {
     return fallback;
   }
 }
-
-/**
- * Mengecek apakah data adalah string yang berisi array JSON
- */
-// 1. Cek apakah tipe datanya string
-// // --- Test Cases ---
-// console.log(isJsonArray(1));                         // false
-// console.log(isJsonArray("Halo"));                    // false
-// console.log(isJsonArray("[\"Elysia\",\"listen\"]")); // true
-// console.log(isJsonArray("[1, 2, 3]"));               // true
-// console.log(isJsonArray("{ \"key\": \"val\" }"));    // false (ini object)
-
 
 // ----- QuestionPage -----
 
@@ -103,4 +43,9 @@ export function validateAnswer(question: Question, answer: any) {
     default:
       return false;
   }
+}
+
+export function saveQuestionsToLocal(questions: Question[]): void {
+  const encodeQuestions = Cipher.encode(JSON.stringify(questions), import.meta.env.VITE_SEED);
+  localStorage.setItem(QUESTION_STORAGE_KEY, encodeQuestions);
 }

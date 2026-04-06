@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BACKEND_URL } from "@/constants";
 // import { LogIn } from "lucide-react"; // Icon alternatif jika tidak pakai SVG Google
 
 interface UserProfile {
@@ -25,7 +26,7 @@ export default function GoogleAuthButton() {
         const data = await res.json();
         // console.log("Google login data", data);
         // ambil user dari backend
-        const resUser = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/users/${data.id}`);
+        const resUser = await fetch(`${BACKEND_URL}/api/users/${data.id}`);
         if (!resUser.ok) throw new Error("Gagal ambil data user");
         const dataUser = await resUser.json();
         setUser(dataUser);
