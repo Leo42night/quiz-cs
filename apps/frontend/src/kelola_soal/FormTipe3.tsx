@@ -11,20 +11,20 @@
  *   correct_answer  : string[] — jawaban per placeholder (urut kemunculan)
  */
 
-import { useState, useEffect } from "react";
-import { toast } from "@/hooks/useToast";
+import { useState, useEffect, lazy, Suspense } from "react";
+import { toast } from "sonner";
 import { Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 // import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CodeEditor } from "@/components/custom/codeEditor";
-import { CommonFields, SectionHeading, PayloadPreview } from "@/components/shared";
-
 
 import type { CodeFillExactQuestion } from "shared";
 import { HL_LANGUAGES } from "@/constants";
 import { extractAnswersFromTemplate, apiTemplateToEditor, editorTemplateToApi } from "@/lib/utils";
+import { PayloadPreview, SectionHeading } from "./Shared";
+const CommonFields = lazy(() => import("./CommonFields").then(module => ({ default: module.CommonFields })));
 
 // ─── defaults ─────────────────────────────────────────────────────────────────
 
@@ -124,16 +124,15 @@ export default function FormTipe3({ initial, onSave, onReady, onCancel }: Props)
           <SectionHeading>Informasi Soal</SectionHeading>
         </CardHeader>
         <CardContent>
-          <CommonFields
-            categoryId={form.category}
-            languageId={form.language}
-            difficulty={form.difficulty}
-            points={form.points}
-            question={form.question}
-            onChange={(k, v) => {
-              set(k, v);
-            }}
-          />
+          <Suspense fallback={<div>Loading Form...</div>}>
+            <CommonFields
+              categoryId={form.category}
+              languageId={form.language}
+              difficulty={form.difficulty}
+              points={form.points}
+              question={form.question}
+              onChange={set} />
+          </Suspense>
         </CardContent>
       </Card>
 

@@ -23,7 +23,7 @@ export function saveQuestionsToLocal(questions: Question[]): void {
 }
 
 export async function saveQuestionToDB(question: Omit<Question, "id">): Promise<Response> {
-  const resQ = await fetch(`${BACKEND_URL}/api/questions?key=${import.meta.env.VITE_SECRET_KEY}`, {
+  const resQ = await fetch(`${BACKEND_URL}/api/questions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(question),
@@ -32,7 +32,7 @@ export async function saveQuestionToDB(question: Omit<Question, "id">): Promise<
 }
 
 export async function updateQuestion(id: number, question: Omit<Question, "id">): Promise<Response> {
-  const resQ = await fetch(`${BACKEND_URL}/api/questions/${id}?key=${import.meta.env.VITE_SECRET_KEY}`, {
+  const resQ = await fetch(`${BACKEND_URL}/api/questions/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(question),

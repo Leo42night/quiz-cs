@@ -1,30 +1,33 @@
 import './App.css';
-// import KelolaSoal from '@/kelola_soal/Index';
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import KelolaSoal from '@/kelola_soal/Index';
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import QuestionPage from '@/pages/QuestionPages';
 import MainLayout from '@/layouts/MainLayout';
-// import ViewQuestionPage from './pages/ViewQuestionPage';
+
+// Ambil status env
+const isDevelopment = import.meta.env.VITE_ENV === 'development';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />, // Layout utama
+    element: <MainLayout />,
     children: [
       {
-        index: true, // Ini akan muncul di path "/"
+        index: true,
         element: <QuestionPage />,
       }
-      // {
-      //   path: "view-question/:id",
-      //   element: <ViewQuestionPage />,
-      // },
     ],
+  },
+  // Rute Kelola Soal dengan Proteksi Environment
+  {
+    path: "kelola-soal",
+    element: isDevelopment ? (
+      <KelolaSoal />
+    ) : (
+      // Jika bukan production, arahkan ke Home atau tampilkan 404
+      <Navigate to="/" replace /> 
+    ),
   }
-  // },
-  // {
-  //   path: "kelola-soal",
-  //   element: <KelolaSoal />,
-  // }
 ]);
 
 function App() {

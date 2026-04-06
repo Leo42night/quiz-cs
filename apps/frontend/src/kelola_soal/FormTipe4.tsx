@@ -10,8 +10,8 @@
  *   correct_answer  : string  — regex pattern (tanpa ^ $, ditambahkan saat validasi)
  */
 
-import { useState, useEffect } from "react";
-import { toast } from "@/hooks/useToast";
+import { useState, useEffect, lazy, Suspense } from "react";
+import { toast } from "sonner";
 import { Code2, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,11 +19,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { CodeEditor } from "@/components/custom/codeEditor";
-import { CommonFields, SectionHeading, PayloadPreview, Field } from "@/components/shared";
+import { Field, PayloadPreview, SectionHeading } from "./Shared";
 
 import type { CodeFillRegexQuestion } from "shared";
 import { HL_LANGUAGES } from "@/constants";
 import { apiTemplateToEditor, editorTemplateToApi } from "@/lib/utils";
+const CommonFields = lazy(() => import("./CommonFields").then(module => ({ default: module.CommonFields })));
 
 // ─── defaults ─────────────────────────────────────────────────────────────────
 
@@ -135,14 +136,15 @@ export default function FormTipe4({ initial, onSave, onReady, onCancel }: Props)
           <SectionHeading>Informasi Soal</SectionHeading>
         </CardHeader>
         <CardContent>
-          <CommonFields
-            categoryId={form.category}
-            languageId={form.language}
-            difficulty={form.difficulty}
-            points={form.points}
-            question={form.question}
-            onChange={set}
-          />
+          <Suspense fallback={<div>Loading Form...</div>}>
+            <CommonFields
+              categoryId={form.category}
+              languageId={form.language}
+              difficulty={form.difficulty}
+              points={form.points}
+              question={form.question}
+              onChange={set} />
+          </Suspense>
         </CardContent>
       </Card>
 

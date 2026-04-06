@@ -31,41 +31,40 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes('@uiw') || id.includes('codemirror')) {
-              return 'editor-vendor';
-            }
-
-            if (id.includes('@react-oauth/google')) {
-              return 'auth-vendor';
-            }
-
-            if (id.includes('@radix-ui') || id.includes('lucide-react')) {
-              return 'ui-vendor';
-            }
-
-            // 1. Markdown Core
-            if (id.includes('node_modules/react-markdown') || id.includes('node_modules/vfile') || id.includes('node_modules/unified')) {
-              return 'markdown-core';
-            }
-
-            // 2. Syntax Highlighter
-            if (id.includes('node_modules/highlight.js')) {
-              return 'hljs-bundle';
-            }
-
-            // 3. UI Components (Radix, Lucide, Sonner)
-            // Lucide seringkali sangat besar jika tidak ter-tree-shake dengan benar
-            if (id.includes('node_modules/lucide-react') || id.includes('node_modules/@radix-ui')) {
-              return 'ui-vendor';
-            }
-
-            // 4. React Core (React, React-DOM, Router)
-            if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-              return 'react-core';
-            }
-
-            // 5. Sisa Library lainnya
             if (id.includes('node_modules')) {
+              if (id.includes('@uiw') || id.includes('codemirror') || id.includes('rehype-')) {
+                return 'editor-bundle';
+              }
+
+              if (id.includes('@react-oauth/google')) {
+                return 'auth-vendor';
+              }
+
+              if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+                return 'ui-vendor';
+              }
+
+              // 1. Markdown Core
+              if (id.includes('react-markdown') || id.includes('vfile') || id.includes('unified')) {
+                return 'markdown-core';
+              }
+
+              // 2. Syntax Highlighter
+              if (id.includes('highlight.js')) {
+                return 'hljs-bundle';
+              }
+
+              // 3. UI Components (Radix, Lucide, Sonner)
+              // Lucide seringkali sangat besar jika tidak ter-tree-shake dengan benar
+              if (id.includes('lucide-react') || id.includes('@radix-ui')) {
+                return 'ui-vendor';
+              }
+
+              // 4. React Core (React, React-DOM, Router)
+              if (id.includes('react/') || id.includes('react-dom/')) {
+                return 'react-core';
+              }
+
               return 'vendor-others';
             }
           }

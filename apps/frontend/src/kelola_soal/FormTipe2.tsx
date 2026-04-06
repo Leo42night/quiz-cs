@@ -10,20 +10,17 @@
  *   correct_answer  : number[]   — array index pilihan benar (sorted)
  */
 
-import { useEffect, useState } from "react";
-import { toast } from "@/hooks/useToast";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { toast } from "sonner";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import { Check, Trash2, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  CommonFields,
-  SectionHeading,
-  PayloadPreview,
-} from "@/components/shared";
 import type { QuizMultiQuestion } from "shared";
+import { PayloadPreview, SectionHeading } from "./Shared";
+const CommonFields = lazy(() => import("./CommonFields").then(module => ({ default: module.CommonFields })));
 
 // ─── defaults ─────────────────────────────────────────────────────────────────
 
@@ -126,14 +123,15 @@ export default function FormTipe2({ initial, onSave, onReady, onCancel }: Props)
           <SectionHeading>Informasi Soal</SectionHeading>
         </CardHeader>
         <CardContent>
-          <CommonFields
-            categoryId={form.category}
-            languageId={form.language}
-            difficulty={form.difficulty}
-            points={form.points}
-            question={form.question}
-            onChange={set}
-          />
+          <Suspense fallback={<div>Loading Form...</div>}>
+            <CommonFields
+              categoryId={form.category}
+              languageId={form.language}
+              difficulty={form.difficulty}
+              points={form.points}
+              question={form.question}
+              onChange={set} />
+          </Suspense>
         </CardContent>
       </Card>
 

@@ -16,18 +16,17 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 // import { Separator } from "@/components/ui/separator";
 import { Toaster } from "@/components/custom/toaster";
-import { toast } from "@/hooks/useToast";
-import { TypeBadge } from "@/components/shared";
+import { toast } from "sonner";
 import FormTipe1 from "@/kelola_soal/FormTipe1";
 import FormTipe2 from "@/kelola_soal/FormTipe2";
 import FormTipe3 from "@/kelola_soal/FormTipe3";
 import FormTipe4 from "@/kelola_soal/FormTipe4";
 import DaftarSoal from "@/kelola_soal/DaftarSoal";
 import { saveQuestionToDB, saveQuestionsToLocal, updateQuestion } from "@/lib/utils";
-import { Navigate, useSearchParams } from "react-router-dom";
-import { BACKEND_URL, SECRET_KEY } from "@/constants";
+import { BACKEND_URL } from "@/constants";
 import type { Question, QuestionType } from "shared";
 import { useAuth } from "@/context/MainContext";
+import { TypeBadge } from "@/components/shared";
 // ─── Type selector cards ───────────────────────────────────────────────────────
 
 const TYPE_OPTIONS = [
@@ -169,22 +168,13 @@ function ExportTab({
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("create");
-  const [searchParams] = useSearchParams();
-  const {questions, setQuestions} = useAuth();
-  
+  const { questions, setQuestions } = useAuth();
+
   // const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedType, setSelectedType] = useState<QuestionType>(1);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [baseUrl, setBaseUrl] = useState(BACKEND_URL || "http://localhost:3000");
   const [resetForm, setResetForm] = useState<(() => void) | null>(null);
-
-  // Ambil nilai dari query param 'key'
-  const accessKey = searchParams.get("key");
-
-  // Validasi: Jika key tidak ada atau salah, tendang balik ke home
-  if (accessKey !== SECRET_KEY) {
-    return <Navigate to="/" replace />;
-  }
 
   const handleSave = useCallback(
     async (data: Omit<Question, "id">, onSuccess?: () => void) => {
