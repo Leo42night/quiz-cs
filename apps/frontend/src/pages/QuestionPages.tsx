@@ -11,7 +11,7 @@ import CodeFill from "@/components/CodeFill"
 
 import { submitAnswer } from "@/lib/submitAnswer"
 import { useAuth } from "@/context/MainContext"
-import { BACKEND_URL, type AnsweredLog } from "@/types"
+import { ANS_Q_IDS_STORAGE_KEY, BACKEND_URL, NOT_ANS_Q_IDS_STORAGE_KEY, type AnsweredLog } from "@/types"
 import { safeParse, validateAnswer } from "@/lib/utils"
 import { CATEGORIES, HL_LANGUAGES, LANGUAGES } from "@/constants"
 import { DifficultyStars, TypeBadge } from "@/components/shared"
@@ -40,7 +40,7 @@ export default function QuestionPage() {
     () => safeParse(localStorage.getItem("answered_question_ids"), [])
   );
   const [notAnsweredQuestionIds, setNotAnsweredQuestionIds] = useState<number[]>(
-    () => safeParse(localStorage.getItem("not_answered_question_ids"), [])
+    () => safeParse(localStorage.getItem(NOT_ANS_Q_IDS_STORAGE_KEY), [])
   );
 
   // --- START: handle paksa periksa answer ketika timer habis
@@ -98,7 +98,7 @@ export default function QuestionPage() {
 
     const userQuestionsIds: number[] = await res.json();
     setAnsweredQuestionIds(userQuestionsIds);
-    localStorage.setItem("answered_question_ids", JSON.stringify(userQuestionsIds));
+    localStorage.setItem(ANS_Q_IDS_STORAGE_KEY, JSON.stringify(userQuestionsIds));
 
     // Hitung soal yang belum dijawab
     if (userQuestionsIds.length < questions.length) {
@@ -106,11 +106,11 @@ export default function QuestionPage() {
         .filter((q) => !userQuestionsIds.includes(q.id))
         .map((q) => q.id);
       setNotAnsweredQuestionIds(unanswered);
-      localStorage.setItem("not_answered_question_ids", JSON.stringify(unanswered));
+      localStorage.setItem(NOT_ANS_Q_IDS_STORAGE_KEY, JSON.stringify(unanswered));
     } else {
       // Semua soal sudah dijawab
       setNotAnsweredQuestionIds([]);
-      localStorage.setItem("not_answered_question_ids", JSON.stringify([]));
+      localStorage.setItem(NOT_ANS_Q_IDS_STORAGE_KEY, JSON.stringify([]));
     }
   };
 
@@ -169,7 +169,7 @@ export default function QuestionPage() {
 
     // ✅ Hitung updated di luar updater, lalu panggil setState dan getNextQuestion terpisah
     const updated = notAnsweredQuestionIds.filter((id) => id !== qId);
-    localStorage.setItem("not_answered_question_ids", JSON.stringify(updated));
+    localStorage.setItem(NOT_ANS_Q_IDS_STORAGE_KEY, JSON.stringify(updated));
     setNotAnsweredQuestionIds(updated);
     getNextQuestion(updated); // aman — dipanggil di event handler, bukan di updater
   };
@@ -186,14 +186,14 @@ export default function QuestionPage() {
   const saveProgress = (qId: number) => {
     if (!user) return;
 
-    const existingLogs: AnsweredLog[] = safeParse(localStorage.getItem("answered_questions"), []);
+    const existingLogs: AnsweredLog[] = safeParse(localStorage.getItem(ANS_Q_IDS_STORAGE_KEY), []);
     const isAlreadyAnswered = existingLogs.some(
       (log) => log.user_id === user.id && log.question_id === qId
     );
 
     if (!isAlreadyAnswered) {
       const updatedLogs = [...existingLogs, { user_id: user.id, question_id: qId }];
-      localStorage.setItem("answered_questions", JSON.stringify(updatedLogs));
+      localStorage.setItem(ANS_Q_IDS_STORAGE_KEY, JSON.stringify(updatedLogs));
     }
   };
 
@@ -212,12 +212,16 @@ export default function QuestionPage() {
 
       if (result.correct) {
         toast.success(`Benar! +${activeQuestion.points} poin`, {
-          description: "Jawaban Anda tepat sekali.",
-          position: "top-left"
+          duration: 1000,
+          position: "top-left",
+          className: "w-full max-w-[90vw] md:max-w-md text-sm md:text-base"
         });
         handleCorrect(activeQuestion.id, activeQuestion.points);
       } else {
-        toast.error("Jawaban Salah");
+        toast.error("Jawaban Salah", {
+          duration: 1000,
+          className: "w-full max-w-[90vw] md:max-w-md text-sm md:text-base"
+        });
         getNextQuestion(notAnsweredQuestionIds); // ← tambah ini
       }
     } catch (e) {
@@ -259,7 +263,7 @@ export default function QuestionPage() {
 
   if (activeQuestion) {
     return (
-      <Card className="max-w-3xl mx-auto mt-8">
+      <Card className="max-w-3xl my-auto mx-auto mt-2 sm:mt-8">
         <CardHeader className="font-semibold">
           <div className="flex flex-wrap gap-1.5 items-center">
             <TypeBadge type={activeQuestion.type} />

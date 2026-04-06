@@ -23,10 +23,11 @@ import FormTipe2 from "@/kelola_soal/FormTipe2";
 import FormTipe3 from "@/kelola_soal/FormTipe3";
 import FormTipe4 from "@/kelola_soal/FormTipe4";
 import DaftarSoal from "@/kelola_soal/DaftarSoal";
-import { saveQuestion, saveQuestions, syncQuestions, updateQuestion } from "@/lib/utils";
+import { saveQuestionToDB, saveQuestionsToLocal, updateQuestion } from "@/lib/utils";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { BACKEND_URL, SECRET_KEY } from "@/constants";
 import type { Question, QuestionType } from "shared";
+import { useAuth } from "@/context/MainContext";
 // ─── Type selector cards ───────────────────────────────────────────────────────
 
 const TYPE_OPTIONS = [
@@ -169,15 +170,13 @@ function ExportTab({
 export default function App() {
   const [activeTab, setActiveTab] = useState("create");
   const [searchParams] = useSearchParams();
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const {questions, setQuestions} = useAuth();
+  
+  // const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedType, setSelectedType] = useState<QuestionType>(1);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [baseUrl, setBaseUrl] = useState(BACKEND_URL || "http://localhost:3000");
   const [resetForm, setResetForm] = useState<(() => void) | null>(null);
-
-  useEffect(() => {
-    syncQuestions(setQuestions);
-  }, []);
 
   // Ambil nilai dari query param 'key'
   const accessKey = searchParams.get("key");
@@ -202,7 +201,7 @@ export default function App() {
           );
           setEditingQuestion(null);
         } else {
-          const resQ = await saveQuestion(data);
+          const resQ = await saveQuestionToDB(data);
           if (!resQ.ok) throw new Error(`Soal gagal disimpan: ${resQ.status}`);
           const saved = await resQ.json(); // ambil id dari backend kalau ada
           setQuestions((prev) => [...prev, { ...data, id: saved?.id ?? Date.now() } as Question]);
@@ -219,7 +218,7 @@ export default function App() {
   );
 
   useEffect(() => {
-    saveQuestions(questions);
+    saveQuestionsToLocal(questions);
   }, [questions]);
 
   const handleEdit = useCallback((q: Question) => {
@@ -366,7 +365,7 @@ export default function App() {
               questions={questions}
               onQuestionsChange={(qs) => {
                 setQuestions(qs);
-                saveQuestions(qs);
+                saveQuestionsToLocal(qs);
               }}
               onEdit={handleEdit}
               baseUrl={baseUrl}

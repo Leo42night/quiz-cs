@@ -3,5 +3,8 @@ export interface AnsweredLog {
   question_id: number;
 }
 
-export const STORAGE_KEY = "quiz_questions";
+export const QUESTION_STORAGE_KEY = "qs";
+export const NEW_ANS_Q_IDS_STORAGE_KEY = "naqis";
+export const ANS_Q_IDS_STORAGE_KEY = "aqis";
+export const NOT_ANS_Q_IDS_STORAGE_KEY = "notaqis";
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;

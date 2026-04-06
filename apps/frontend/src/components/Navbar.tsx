@@ -108,7 +108,7 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between mx-auto">
         {/* Logo */}
         <div className="flex items-center gap-2 font-bold text-xl">
-          <span className="bg-primary text-primary-foreground px-2 py-1 rounded-md">PPWL</span>
+          <span className="text-[10px] sm:text-xl bg-primary text-primary-foreground px-2 py-1 rounded-md">PPWL</span>
           <span className="hidden md:inline">2026</span>
         </div>
 
@@ -123,13 +123,13 @@ export function Navbar() {
         </div>
 
         {/* Auth Section */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center">
           {user ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center sm:gap-3">
               <TooltipProvider>
-                <div className="flex flex-col items-end gap-2 mr-1">
+                <div className="flex flex-col items-end md:gap-2 mr-1">
                   {/* Label Header */}
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none">
+                  <span className="text-[6px] sm:text-[10px] uppercase font-bold text-muted-foreground tracking-wider leading-none">
                     Your Progress
                   </span>
 
@@ -145,14 +145,16 @@ export function Navbar() {
                             size="sm"
                             onClick={saveScore}
                             disabled={loadingSaveScore}
-                            className="h-8 px-3 text-xs font-semibold shadow-sm transition-all hover:scale-105 active:scale-95"
+                            className="md:h-8 md:px-3 text-xs font-semibold shadow-sm transition-all hover:scale-105 active:scale-95"
                           >
                             {loadingSaveScore ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                              <Loader2 className="w-3.5 h-3.5 animate-spin md:mr-1" />
                             ) : (
                               <Save className="w-3.5 h-3.5 mr-1" />
                             )}
-                            {loadingSaveScore ? "Menyimpan..." : "Simpan Score"}
+                            <span className="hidden md:inline-block">
+                              {loadingSaveScore ? "Menyimpan..." : "Simpan Score"}
+                            </span>
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
@@ -164,7 +166,7 @@ export function Navbar() {
                     {/* Skor Container */}
                     <Badge
                       variant="secondary"
-                      className="h-8 px-3 font-mono text-sm flex items-center gap-1.5 border-muted"
+                      className="md:h-8 md:px-3 font-mono text-xs md:text-sm flex items-center md:gap-1.5 border-muted"
                     >
                       <Tooltip>
                         <TooltipTrigger asChild>

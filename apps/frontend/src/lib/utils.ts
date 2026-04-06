@@ -1,11 +1,10 @@
 import { Cipher, type Question } from "shared";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { toast } from "sonner";
 import { BACKEND_URL } from "@/constants";
-import { STORAGE_KEY } from "@/types";
+import { QUESTION_STORAGE_KEY } from "@/types";
 
-function normalizeQuestion(q: any): Question {
+export function normalizeQuestion(q: any): Question {
   const answer =
     (q.type === 1 || q.type === 2) && typeof q.answer === "string"
       ? JSON.parse(q.answer)
@@ -18,55 +17,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function loadQuestions(): Question[] {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
-  } catch {
-    return [];
-  }
+export function saveQuestionsToLocal(questions: Question[]): void {
+  const encodeQuestions = Cipher.encode(JSON.stringify(questions), import.meta.env.VITE_SEED);
+  localStorage.setItem(QUESTION_STORAGE_KEY, encodeQuestions);
 }
 
-export async function syncQuestions(
-  setQuestions: (qs: Question[]) => void
-): Promise<void> {
-  // 1. Cek local storage dulu, kalau sudah ada (dan tidak kosong), 
-  // ambil dari sana saja supaya cepat (Sesuai logika yang kamu minta)
-  const localData = localStorage.getItem("questions");
-  if (localData && localData !== "[]") {
-    const parsed = JSON.parse(localData).map(normalizeQuestion);
-    setQuestions(parsed);
-    return;
-  }
-
-  // 2. Jika tidak ada di local storage, ambil dari backend
-  try {
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Pastikan ini terdefinisi
-    if (!BACKEND_URL) throw new Error("BACKEND_URL is undefined");
-
-    const resQ = await fetch(`${BACKEND_URL}/api/questions`);
-    if (!resQ.ok) throw new Error("Failed to fetch questions");
-
-    const fetchedQ = await resQ.json();
-
-    // 3. Dekripsi dan Normalisasi
-    const decodeQuestions = Cipher.decode(fetchedQ.data, import.meta.env.VITE_SEED);
-    const normalized = safeParse(decodeQuestions, []).map(normalizeQuestion);
-
-    // 4. Update State dan LocalStorage
-    setQuestions(normalized);
-    localStorage.setItem("questions", JSON.stringify(normalized));
-
-  } catch (err) {
-    toast.error(`Gagal load questions: ${err}`);
-    console.error("Initialization failed", err);
-  }
-}
-
-export function saveQuestions(questions: Question[]): void {
-  localStorage.setItem("questions", JSON.stringify(questions));
-}
-
-export async function saveQuestion(question: Omit<Question, "id">): Promise<Response> {
+export async function saveQuestionToDB(question: Omit<Question, "id">): Promise<Response> {
   const resQ = await fetch(`${BACKEND_URL}/api/questions?key=${import.meta.env.VITE_SECRET_KEY}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

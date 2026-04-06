@@ -38,4 +38,4 @@ export const TIME_LIMIT = Number(import.meta.env.VITE_TIME_LIMIT) || 30;
 export const SECRET_KEY = import.meta.env.VITE_SECRET_KEY
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 // src/config/storageVersion.ts
-export const STORAGE_VERSION = "1.0.1"; // Ubah ini setiap deploy yang perlu reset
+export const STORAGE_VERSION = "1.0.2"; // Ubah ini setiap deploy yang perlu reset

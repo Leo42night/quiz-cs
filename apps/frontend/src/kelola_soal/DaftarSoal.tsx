@@ -37,7 +37,7 @@ import { CodePreview } from "@/components/custom/codeEditor";
 import { TypeBadge, DifficultyStars } from "@/components/shared";
 import { HL_LANGUAGES, LANGUAGES, CATEGORIES, TYPE_LABELS, BACKEND_URL } from "@/constants";
 import type { Question, QuestionType } from "shared";
-import { saveQuestions } from "./utils";
+import { saveQuestionsToLocal } from "@/lib/utils";
 
 // ─── curl builder ─────────────────────────────────────────────────────────────
 
@@ -225,7 +225,7 @@ export default function DaftarSoal({
         onClick: () => {
           const updated = questions.filter((q) => q.id !== id);
           onQuestionsChange(updated);
-          saveQuestions(updated);
+          saveQuestionsToLocal(updated);
           toast.success("Soal berhasil dihapus.");
         },
       },

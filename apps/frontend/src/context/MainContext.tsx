@@ -1,19 +1,10 @@
 // MainContext.tsx
 import { TIME_LIMIT } from "@/constants";
-import { safeParse } from "@/lib/utils";
-import { BACKEND_URL } from "@/types";
+import { normalizeQuestion, safeParse } from "@/lib/utils";
+import { BACKEND_URL, NEW_ANS_Q_IDS_STORAGE_KEY, QUESTION_STORAGE_KEY } from "@/types";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Cipher, type Question } from "shared";
 import { toast } from "sonner";
-
-function normalizeQuestion(q: any): Question {
-  const answer =
-    (q.type === 1 || q.type === 2) && typeof q.answer === "string"
-      ? JSON.parse(q.answer)
-      : q.answer;
-
-  return { ...q, answer };
-}
 
 interface UserProfile {
   id: number;
@@ -27,6 +18,7 @@ interface UserProfile {
 interface MainContextType {
   user: UserProfile | null;
   questions: Question[];
+  setQuestions: React.Dispatch<React.SetStateAction<Question[]>>; 
   handleLogin: (googleData: any) => Promise<UserProfile | undefined>;
   logout: () => void;
   newAnsweredQuestionIds: number[];
@@ -44,8 +36,14 @@ const MainContext = createContext<MainContextType | undefined>(undefined);
 
 export function MainProvider({ children }: { children: ReactNode }) {
   const [questions, setQuestions] = useState<Question[]>(() => {
-    const raw = safeParse(localStorage.getItem("questions"), []);
-    return raw.map(normalizeQuestion);
+    const hex = localStorage.getItem(QUESTION_STORAGE_KEY);
+    if (typeof hex === "string") {
+      const decodeQuestions = Cipher.decode(hex, import.meta.env.VITE_SEED);
+      const raw = safeParse(decodeQuestions, []);
+      return raw.map(normalizeQuestion);
+    } else {
+      return [];
+    }
   });
 
   const [user, setUserState] = useState<UserProfile | null>(() => {
@@ -54,7 +52,7 @@ export function MainProvider({ children }: { children: ReactNode }) {
   const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
   const [timeLimit, setTimeLimit] = useState(TIME_LIMIT); // Waktu limit dalam detik
   const [newAnsweredQuestionIds, setNewAnsweredQuestionIds] = useState<number[]>(
-    () => safeParse(localStorage.getItem("new_answered_question_ids"), [])
+    () => safeParse(localStorage.getItem(NEW_ANS_Q_IDS_STORAGE_KEY), [])
   );
   const [isScoreMax, setIsScoreMax] = useState(false);
 
@@ -63,13 +61,13 @@ export function MainProvider({ children }: { children: ReactNode }) {
 
   // Sync newAnsweredQuestionIds ke localStorage tiap berubah
   useEffect(() => {
-    localStorage.setItem("new_answered_question_ids", JSON.stringify(newAnsweredQuestionIds));
+    localStorage.setItem(NEW_ANS_Q_IDS_STORAGE_KEY, JSON.stringify(newAnsweredQuestionIds));
   }, [newAnsweredQuestionIds]);
 
   // Fetch questions & users jika belum ada di localStorage
   useEffect(() => {
     const init = async () => {
-      if (localStorage.getItem("questions")) return;
+      if (localStorage.getItem(QUESTION_STORAGE_KEY)) return;
       try {
         if (!BACKEND_URL) throw new Error("BACKEND_URL is undefined");
 
@@ -78,14 +76,10 @@ export function MainProvider({ children }: { children: ReactNode }) {
         if (!resQ.ok) throw new Error("Failed to fetch questions");
 
         const fetchedQ = await resQ.json();
-        // console.log("fetchedQ:", fetchedQ);
+        localStorage.setItem(QUESTION_STORAGE_KEY, fetchedQ.data); // hex data
         const decodeQuestions = Cipher.decode(fetchedQ.data, import.meta.env.VITE_SEED);
-        // console.log("decodeQuestions:", decodeQuestions);
         const normalized = safeParse(decodeQuestions, []).map(normalizeQuestion);
-        // console.log("Normalized questions:", normalized);
         setQuestions(normalized);
-        localStorage.setItem("questions", JSON.stringify(normalized));
-
       } catch (err) {
         toast.error(`Gagal load questions: ${err}`);
         console.error("Initialization failed", err);
@@ -193,7 +187,7 @@ export function MainProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("user");
     localStorage.removeItem("answered_question_ids");
     localStorage.removeItem("not_answered_question_ids");
-    localStorage.removeItem("new_answered_question_ids");
+    localStorage.removeItem(NEW_ANS_Q_IDS_STORAGE_KEY);
   };
 
   // Tambah di dalam MainProvider
@@ -211,6 +205,7 @@ export function MainProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         questions,
+        setQuestions,
         handleLogin,
         logout,
         newAnsweredQuestionIds,
