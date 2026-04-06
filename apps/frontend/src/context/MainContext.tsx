@@ -5,7 +5,6 @@ import { NEW_ANS_Q_IDS_STORAGE_KEY, QUESTION_STORAGE_KEY } from "@/constants";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Cipher, type Question } from "shared";
 import { toast } from "sonner";
-import { RotateCw } from "lucide-react" // Tambahkan ini
 
 interface UserProfile {
   id: number;

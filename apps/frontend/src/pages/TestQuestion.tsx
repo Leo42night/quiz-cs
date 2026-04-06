@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react"
+import { useEffect, useState, useRef, useMemo, lazy } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import ReactMarkdown from "react-markdown"
 import rehypeHighlight from "rehype-highlight"
@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
-import QuizSingle from "@/components/QuizSingle"
-import QuizMulti from "@/components/QuizMulti"
-import CodeFill from "@/components/CodeFill"
+const QuizSingle = lazy(() => import("@/components/QuizSingle"));
+const QuizMulti = lazy(() => import("@/components/QuizMulti"));
+const CodeFill = lazy(() => import("@/components/CodeFill"));
 
 import { submitAnswer } from "@/lib/submitAnswer"
 import { saveQuestionsToLocal, validateAnswer } from "@/lib/utils"
