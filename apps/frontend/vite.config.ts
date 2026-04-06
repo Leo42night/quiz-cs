@@ -31,6 +31,18 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            if (id.includes('@uiw') || id.includes('codemirror')) {
+              return 'editor-vendor';
+            }
+
+            if (id.includes('@react-oauth/google')) {
+              return 'auth-vendor';
+            }
+
+            if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+              return 'ui-vendor';
+            }
+
             // 1. Markdown Core
             if (id.includes('node_modules/react-markdown') || id.includes('node_modules/vfile') || id.includes('node_modules/unified')) {
               return 'markdown-core';
@@ -60,7 +72,15 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      visualizer({
+        open: true,
+        filename: "bundle-analysis.html",
+        gzipSize: true,
+      }),
+    ],
     resolve: {
       alias: { '@': path.resolve(__dirname, './src') }
     },
