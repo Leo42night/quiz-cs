@@ -76,15 +76,10 @@ const app = new Elysia()
 if (process.env.NODE_ENV != "production") {
   app.use(swagger())
   app.listen(3000);
-  console.log(`🦊 Backend → http://localhost:3000`);
+  console.log(`🦊 Backend [Hard Code] → http://localhost:3000`);
   const dbPath = path.resolve(__dirname, "../dev.db");
   const DATABASE_URL = process.env.DATABASE_URL || `file:${dbPath}`;
   console.log(`🦊 DATABASE_URL: ${DATABASE_URL}`);
 }
 
 export default app;
-// POST login -> savelogin -> setcookie -> go to frontend (check cookie) -> get questions
-// GET list questions
-// questions/<i>
-// questions/<i>/answers
-// 

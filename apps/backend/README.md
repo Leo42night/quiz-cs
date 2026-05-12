@@ -33,7 +33,6 @@ bun dev:turso
 Jalankan [turso CLI](https://docs.turso.tech/cli/introduction) (OS Windows pakai WSL):
 
 ```bash
-# sebelunya: login dan tampilkan list database
 ## wsl: login headless
 turso auth login --headless
 # (ppwl-2026 is DB Name) .dump command to generate all the SQL instructions (DDL and Inserts).

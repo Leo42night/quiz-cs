@@ -1,4 +1,5 @@
-# mengupdate level score dari tiap question di kode
+# mengupdate level score dari tiap question berdasarkan difficulty, 
+# untuk memastikan tiap student bisa mencapai score max dengan usaha yang wajar (tanpa harus perfect menjawab semua soal)
 import requests
 
 # Konfigurasi

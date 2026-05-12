@@ -1,3 +1,4 @@
+# hapus postfix yang berawal MARKER di question, biasanya AI generate question dengan tambahan "bisa" atau "bisa juga" yang tidak diperlukan
 import requests
 import json
 
@@ -46,6 +47,7 @@ def main():
         print(f"[{q['id']}] {question_text!r}")
         print(f"  → {cleaned!r}")
 
+        # Matikan jika ingin melakukan update manual dulu
         # put_res = requests.put(
         #     f"{BACKEND_URL}/api/questions/{q['id']}", json={"question": cleaned}
         # )

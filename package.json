@@ -9,6 +9,7 @@
     "dev": "bun run --filter '*' dev",
     "devh": "bun run --filter '*' devh",
     "devt": "bun run --env-file=apps/backend/.env.production --filter '*' devt",
+    "devtb": "bun run --env-file=apps/backend/.env.production --filter backend devt",
     "db:dump": "bun run --filter backend db:dump",
     "db:seed": "bun run --filter backend db:seed",
     "prod:sql": "bun run --env-file=apps/backend/.env.production --filter backend prod:sql",

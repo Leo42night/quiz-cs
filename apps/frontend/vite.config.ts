@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
 
   const check = env.VITE_CHECK;
   if (!check) throw new Error("env is not detected");
-  console.log("Berhasil env:", check)
+  console.log("[LOG] Berhasil env:", check)
 
   return {
     // Sekarang Anda bisa menggunakan variabel env di sini jika butuh, 

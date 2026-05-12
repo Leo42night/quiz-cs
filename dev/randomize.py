@@ -1,3 +1,4 @@
+
 import requests
 import json
 import random
@@ -73,6 +74,15 @@ def main():
                     # 3. Update data objek
                     q["answer"] = json.dumps(new_ans_list)
                     q["correct_answer"] = json.dumps(new_corr_list)
+
+                    # Confirm sebelum run request PUT
+                    print(f"New Answers: {new_ans_list}")
+                    print(f"New Correct Indices: {new_corr_list}")
+                    confirm = input("\nApakah data di atas sudah benar? (y/n): ").lower()
+                    if confirm != "y":
+                        qId = q.get('id')
+                        print(f"Proses update dibatalkan untuk ID {qId}.")
+                        continue
 
                     # 4. PUT ke API
                     question_id = q.get("id")

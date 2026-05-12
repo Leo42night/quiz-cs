@@ -1,3 +1,4 @@
+# Script untuk acak urutan jawaban di database, khusus untuk type=1 dan type=2 yang correct_answer-nya masih default (0 untuk type=1, [0,1,2] untuk type=2).
 import requests
 import json
 import random

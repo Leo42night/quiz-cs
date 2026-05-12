@@ -1,4 +1,19 @@
 # PPWL
+Aplikasi PPWL, berisi fitur Quiz.
+
+Setup:
+```bash
+# 1. setup `apps\backend\.env.template` dan `apps\frontend\.env.template`
+# -- ganti dengan nama env yang tepat & isiannya
+# 2. Install Package
+bun install
+# 3. Setup backend prisma migration dev & generate client
+cd apps/backend 
+bunx --bun prisma migrate dev
+bunx --bun prisma generate
+```
+
+Tools:
 ```bash
 # tambahkan package ke sub workspace
 cd <path_sub_workspace> && bun add -D <package_name> # -D jika ingin save di devDependency 

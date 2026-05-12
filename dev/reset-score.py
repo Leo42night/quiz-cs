@@ -1,4 +1,4 @@
-# Reset score semua user menjadi 0
+# Reset score semua user menjadi 0 (ketika fase selesai, atau untuk testing ulang)
 import requests
 
 # Konfigurasi
