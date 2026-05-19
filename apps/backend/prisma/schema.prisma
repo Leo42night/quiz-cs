@@ -22,13 +22,13 @@ model questions {
   category       Int
   language       Int
   type           Int
-  question       String
+  question       String           @unique // agar tidak ada double questions
   answer         String
   correct_answer String
   difficulty     Int
   points         Int
   user_questions user_questions[]
-  updated_at     Int @default(0)    
+  updated_at     Int              @default(0)    
 }
 
 model user_questions {

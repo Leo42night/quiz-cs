@@ -1,34 +1,46 @@
-import { prisma } from './db';
+// karena `bun prisma db seed` tidak bisa baca prompt() (tidak berjalan di TTY interaktif)
+// Jadi perlu run pakai `bun prisma/seed.ts`
+import { prisma, dbUrl } from './db';
 import path from "path";
 import { formatToString } from './../src/utils';
+import type { Question } from 'shared';
 
-console.log("seed into DATABASE_URL...", process.env.DATABASE_URL);
+console.log("seed into dbUrl...", dbUrl);
 
 async function seedStudents() {
   // load student-a.json & student-b.json
-  const studentA = JSON.parse(await Bun.file(path.resolve(__dirname, "../data-students-a.json")).text());
-  const studentB = JSON.parse(await Bun.file(path.resolve(__dirname, "../data-students-b.json")).text());
+  const studentA = JSON.parse(await Bun.file(path.resolve(__dirname, "../data/students.json")).text());
+  // const studentB = JSON.parse(await Bun.file(path.resolve(__dirname, "../data/data-students-b.json")).text());
   // merge student-a.json & student-b.json
-  const students = [...studentA, ...studentB];
+  // const students = [...studentA, ...studentB];
+  const students = [...studentA];
   // loop periksa apakah ada students.email yg sama
-  await Promise.all(
-    students.map((student) =>
-      prisma.users.upsert({
-        where: { email: student.email },
-        update: {
-          name: student.name,
-          // update field lainnya jika perlu
-        },
-        create: student,
-      })
-    )
-  );
+  try {
+    await Promise.all(
+      students.map((student) =>
+        prisma.users.upsert({
+          where: { email: student.email },
+          update: {
+            name: student.name,
+            // update field lainnya jika perlu
+          },
+          create: student,
+        })
+      )
+    );
+
+    console.log(`✅ Berhasil! ${students.length} data telah ditambahkan.`);
+    return "ok"; // Pastikan mengembalikan sesuatu
+  } catch (error) {
+    console.error("❌ Gagal push ke DB:", error);
+    throw error; // Lempar error agar seedUserQuestion tidak jalan
+  }
 }
 
 async function seedQuestions() {
   console.log("seed Questions...");
   // 1. Load data
-  const fileContent = await Bun.file(path.resolve(__dirname, "../questions.json")).text();
+  const fileContent = await Bun.file(path.resolve(__dirname, "../data/questions.json")).text();
   const questions = JSON.parse(fileContent);
 
   // 2. Transform data
@@ -51,9 +63,32 @@ async function seedQuestions() {
   if (input?.toLowerCase() === 'y') {
     console.log("🚀 Memulai proses seeding...");
     try {
-      const result = await prisma.questions.createMany({ data: question_clear });
-      console.log(`✅ Berhasil! ${result.count} data telah ditambahkan.`);
-      return result; // Pastikan mengembalikan sesuatu
+      await Promise.all(
+        question_clear.map((q: Question) => {
+          const upData = {
+            type: q.type,
+            category: q.category,
+            language: q.language,
+            answer: typeof q.answer === 'string' ? q.answer : JSON.stringify(q.answer),
+            correct_answer: typeof q.correct_answer === 'string' ? q.correct_answer : JSON.stringify(q.correct_answer),
+            difficulty: q.difficulty,
+            points: q.points,
+          }
+          const createData: any = upData;
+          createData.question = q.question;
+
+          prisma.questions.upsert({
+            where: {
+              question: q.question, // harus UNIQUE di schema
+            },
+            update: upData,
+            create: createData,
+          })
+        }
+        )
+      );
+      console.log(`✅ Berhasil! ${question_clear.count} data telah ditambahkan.`);
+      return 0; // Pastikan mengembalikan sesuatu
     } catch (error) {
       console.error("❌ Gagal push ke DB:", error);
       throw error; // Lempar error agar seedUserQuestion tidak jalan
@@ -64,11 +99,11 @@ async function seedQuestions() {
   }
 }
 
-async function seedUpdateQuestions() {
+async function seedNewQuestions() {
   console.log("🔍 Loading data from JSON...");
 
   // 1. Load data
-  const filePath = path.resolve(__dirname, "../quiz-update.json");
+  const filePath = path.resolve(__dirname, "../data/quiz-new.json");
   const fileContent = await Bun.file(filePath).text();
   const questions = JSON.parse(fileContent);
 
@@ -182,9 +217,9 @@ async function seedUserQuestion() {
 async function main() {
   try {
     console.log("start seed in...", process.cwd());
-    // await seedStudents();
+    await seedStudents();
     // await seedQuestions();
-    await seedUpdateQuestions();
+    // await seedNewQuestions();
     // await seedUserQuestion();
   } catch (error) {
     console.error(error);

@@ -40,9 +40,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .vercel
 
 # custom
+/prisma/migrations
 students-a.json
 students-b.json
-questions.json
 quiz-update.json
 *backup.json
 *.sql
