@@ -39,17 +39,23 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "test-question/:id",
+    // tanda ? berati opsional
+    path: "test-question/:id?",
     element: isDevelopment ? (
       <TestQuestion />
     ) : (
       // Jika bukan production, arahkan ke Home atau tampilkan 404
       <Navigate to="/" replace />
     ),
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />
   }
 ]);
 
 function App() {
+  // add data user
   return <RouterProvider router={router} />;
 }
 

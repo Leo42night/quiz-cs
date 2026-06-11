@@ -1,3 +1,4 @@
+// gabungan type 3 & 4 (bedanya logika di onAnswer)
 import { useEffect, useMemo, useState } from "react"
 import hljs from "@/lib/highlight"
 import { Input } from "@/components/ui/input"

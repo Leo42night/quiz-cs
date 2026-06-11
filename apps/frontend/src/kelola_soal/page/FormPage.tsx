@@ -8,7 +8,7 @@ import FormTipe2 from "@/kelola_soal/FormTipe2";
 import FormTipe3 from "@/kelola_soal/FormTipe3";
 import FormTipe4 from "@/kelola_soal/FormTipe4";
 import { saveQuestionToDB, updateQuestionToDB } from "../utils";
-import { useAuth } from "@/context/MainContext";
+import { useAuth } from "@/hooks/useAuth";
 import type { Question, QuestionType } from "shared";
 import { saveQuestionsToLocal } from "@/lib/utils";
 

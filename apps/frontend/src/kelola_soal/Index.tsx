@@ -2,7 +2,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { BookOpen, PlusCircle, Terminal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/context/MainContext";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function KelolaSoalLayout() {
   const { questions } = useAuth();

@@ -1,8 +1,9 @@
-# PPWL
-<!-- Foto UI Quiz (4 tipe soal) -->
-Aplikasi PPWL, berisi fitur Quiz (4 tipe: Single, Multi, CodeFill, CodeRegex) & Kelola Quiz.
+<img src="https://raw.githubusercontent.com/Leo42night/Leo42night/main/img/quiz-cs-banner.png" />
+Aplikasi Quiz dengan 4 tipe: Single, Multi, CodeFill, CodeRegex. Juga fitur Kelola Quiz.
 
-> Use-Case: Dipakai sebagai tugas pengganti *student* program CS yang ingin menambal nilai.
+> Initial Use-Case: Dipakai sebagai tugas pengganti *student* program CS yang ingin menambal nilai.
+
+Status web *Public Mode*, anda dapat coba fitur quiz, proses simpan ke database akan di-skip.
 
 ## Stack
 - Monorepo pakai BunJS (language Typescript).

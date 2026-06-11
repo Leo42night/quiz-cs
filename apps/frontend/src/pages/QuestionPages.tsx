@@ -13,7 +13,7 @@ const QuizMulti = lazy(() => import("@/components/QuizMulti"));
 const CodeFill = lazy(() => import("@/components/CodeFill"));
 
 import { submitAnswer } from "@/lib/submitAnswer";
-import { useAuth } from "@/context/MainContext";
+import { useAuth } from "@/hooks/useAuth";
 import { ANS_Q_IDS_STORAGE_KEY, NOT_ANS_Q_IDS_STORAGE_KEY, HL_LANGUAGES, CATEGORIES, LANGUAGES } from "@/constants";
 import { safeParse, validateAnswer } from "@/lib/utils";
 import { DifficultyStars, TypeBadge } from "@/components/shared";

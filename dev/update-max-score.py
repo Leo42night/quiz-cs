@@ -1,5 +1,6 @@
-# mengupdate level score dari tiap question berdasarkan difficulty, 
-# untuk memastikan tiap student bisa mencapai score max dengan usaha yang wajar (tanpa harus perfect menjawab semua soal)
+# mengupdate level score dari tiap question berdasarkan difficulty,
+# untuk memastikan tiap student bisa mencapai score max dengan
+# usaha yang wajar (tanpa harus perfect menjawab semua soal)
 import requests
 
 # Konfigurasi
@@ -41,12 +42,14 @@ def update_question_points():
                 continue
 
             score_after += new_points
-            changes.append({
-                "id": q_id,
-                "difficulty": difficulty,
-                "old": old_points,
-                "new": new_points,
-            })
+            changes.append(
+                {
+                    "id": q_id,
+                    "difficulty": difficulty,
+                    "old": old_points,
+                    "new": new_points,
+                }
+            )
 
         # 3. Tampilkan preview perubahan
         print("\n" + "=" * 55)
@@ -55,7 +58,9 @@ def update_question_points():
         for c in changes:
             delta = c["new"] - c["old"]
             delta_str = f"+{delta}" if delta > 0 else str(delta)
-            print(f"{c['id']:<8} {c['difficulty']:<6} {c['old']:>6} {c['new']:>6} {delta_str:>8}")
+            print(
+                f"{c['id']:<8} {c['difficulty']:<6} {c['old']:>6} {c['new']:>6} {delta_str:>8}"
+            )
         print("=" * 55)
         print(f"{'Total Score Lama:':<30} {score_before:>6}")
         print(f"{'Total Score Baru:':<30} {score_after:>6}")
@@ -82,7 +87,9 @@ def update_question_points():
         for c in changes:
             update_url = f"{BASE_URL}/{c['id']}"
             payload = {"points": c["new"]}
-            put_res = requests.put(update_url, params=params, json=payload, headers=HEADERS)
+            put_res = requests.put(
+                update_url, params=params, json=payload, headers=HEADERS
+            )
 
             if put_res.status_code == 200:
                 print(f"[SUCCESS] ID {c['id']}: {c['old']} -> {c['new']} pts")
@@ -95,6 +102,7 @@ def update_question_points():
 
     except Exception as e:
         print(f"Terjadi kesalahan: {e}")
+
 
 if __name__ == "__main__":
     update_question_points()

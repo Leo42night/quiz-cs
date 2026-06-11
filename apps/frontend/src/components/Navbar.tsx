@@ -1,5 +1,4 @@
 // Navbar.tsx
-import { useAuth } from "@/context/MainContext";
 import { useGoogleLogin } from "@react-oauth/google";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,6 +20,7 @@ import { toast } from "sonner";
 import { Loader2, Save, Timer } from "lucide-react";
 import { BACKEND_URL } from "@/constants";
 import { TIME_LIMIT } from "@/constants";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Navbar() {
   const {
@@ -197,7 +197,12 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={user.picture} alt={user.name} />
+                      <AvatarImage
+                        src={user.picture}
+                        alt={user.name || "User Avatar"}
+                        // cegah validasi google
+                        referrerPolicy="no-referrer"
+                      />
                       <AvatarFallback>{user.name?.charAt(0) ?? ":)"}</AvatarFallback>
                     </Avatar>
                   </Button>

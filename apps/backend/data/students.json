@@ -1,5 +1,9 @@
 [
     {
+        "name": "Public",
+        "email": "public@mail.com"
+    },
+    {
         "name": "Leo",
         "email": "H1101221016@student.untan.ac.id"
     },
@@ -10,17 +14,5 @@
     {
         "name": "Budi Santoso",
         "email": "budi@example.com"
-    },
-    {
-        "name": "Citra Lestari",
-        "email": "citra@example.com"
-    },
-    {
-        "name": "Dewi Anggraini",
-        "email": "dewi@example.com"
-    },
-    {
-        "name": "Eko Pratama",
-        "email": "eko@example.com"
     }
 ]

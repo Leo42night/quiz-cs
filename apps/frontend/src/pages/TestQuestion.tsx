@@ -15,11 +15,11 @@ import { submitAnswer } from "@/lib/submitAnswer"
 import { saveQuestionsToLocal, validateAnswer } from "@/lib/utils"
 import { BACKEND_URL, CATEGORIES, HL_LANGUAGES, LANGUAGES } from "@/constants"
 import { DifficultyStars, TypeBadge } from "@/components/shared"
-import { useAuth } from "@/context/MainContext"
+import { useAuth } from "@/hooks/useAuth"
 import { RotateCw } from "lucide-react"
 
 export default function TestQuestion() {
-  const { questions, setQuestions } = useAuth()
+  const { questions, setQuestions } = useAuth();
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
@@ -32,13 +32,14 @@ export default function TestQuestion() {
 
   // 1. Dapatkan soal secara stabil (hanya berubah jika ID di URL atau list questions berubah)
   const question = useMemo(() => {
-
     if (!questions || questions.length === 0) return null;
 
     // 1. Jika ada ID di URL, cari soal tersebut (tanpa peduli tipe)
     if (id) {
       const targetId = Number(id);
-      return questions.find((q) => q.id === targetId) || null;
+      const q = questions.find((q) => q.id === targetId) || null;
+      console.log({ q })
+      return q;
     }
 
     // 2. Jika tidak ada ID, tentukan daftar soal yang tersedia
@@ -125,6 +126,7 @@ export default function TestQuestion() {
       const updatedQuestions = questions.map((q: any) =>
         q.id === loadedQuestion.id ? loadedQuestion : q
       );
+      console.log({ updatedQuestions })
 
       // 2. Panggil setQuestions (Context)
       setQuestions(updatedQuestions);
@@ -246,7 +248,7 @@ export default function TestQuestion() {
   return (
     <div className="pt-20">
       <div className="flex flex-col items-center gap-2">
-        <h1 className="text-center">Testing Soal (Development)</h1>
+        <h1 className="text-center">Testing Soal (Development / Public Access)</h1>
         {/* Tombol Refresh */}
         <Button
           variant="ghost"

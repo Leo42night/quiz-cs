@@ -1,4 +1,5 @@
-# hapus postfix yang berawal MARKER di question, biasanya AI generate question dengan tambahan "bisa" atau "bisa juga" yang tidak diperlukan
+# hapus postfix yang berawal MARKER di question, 
+# biasanya AI generate question dengan tambahan "bisa" atau "bisa juga" yang tidak diperlukan
 import requests
 import json
 

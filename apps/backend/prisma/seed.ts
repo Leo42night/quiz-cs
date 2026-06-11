@@ -1,5 +1,4 @@
-// karena `bun prisma db seed` tidak bisa baca prompt() (tidak berjalan di TTY interaktif)
-// Jadi perlu run pakai `bun prisma/seed.ts`
+// turso hanya export ke json, csv, xlsx, jadi kita pakai ini untuk sync dari prod ke local
 import { prisma, dbUrl } from './db';
 import path from "path";
 import { formatToString } from './../src/utils';
@@ -29,7 +28,7 @@ async function seedStudents() {
       )
     );
 
-    console.log(`✅ Berhasil! ${students.length} data telah ditambahkan.`);
+    console.log(`✅ Berhasil! ${students.length} data Students ditambahkan.`);
     return "ok"; // Pastikan mengembalikan sesuatu
   } catch (error) {
     console.error("❌ Gagal push ke DB:", error);
@@ -44,7 +43,7 @@ async function seedQuestions() {
   const questions = JSON.parse(fileContent);
 
   // 2. Transform data
-  const question_clear = questions.map((question: any) => ({
+  const question_clear: Question[] = questions.map((question: any) => ({
     ...question,
     answer: formatToString(question.answer),
     correct_answer: formatToString(question.correct_answer),
@@ -63,8 +62,9 @@ async function seedQuestions() {
   if (input?.toLowerCase() === 'y') {
     console.log("🚀 Memulai proses seeding...");
     try {
-      await Promise.all(
-        question_clear.map((q: Question) => {
+      // Gunakan Promise.all dengan benar dengan menambahkan 'async/await' di dalam .map
+      const results = await Promise.all(
+        question_clear.map(async (q: Question) => {
           const upData = {
             type: q.type,
             category: q.category,
@@ -73,21 +73,28 @@ async function seedQuestions() {
             correct_answer: typeof q.correct_answer === 'string' ? q.correct_answer : JSON.stringify(q.correct_answer),
             difficulty: q.difficulty,
             points: q.points,
-          }
-          const createData: any = upData;
-          createData.question = q.question;
+          };
 
-          prisma.questions.upsert({
+          const createData = {
+            ...upData,
+            question: q.question,
+          };
+
+          // Tambahkan return await agar hasilnya masuk ke array 'results'
+          return await prisma.questions.upsert({
             where: {
-              question: q.question, // harus UNIQUE di schema
+              question: q.question,
             },
             update: upData,
             create: createData,
-          })
-        }
-        )
+          });
+        })
       );
-      console.log(`✅ Berhasil! ${question_clear.count} data telah ditambahkan.`);
+
+      // results.length otomatis mewakili jumlah data yang berhasil di-upsert
+      const totalBerhasil = results.length;
+
+      console.log(`✅ Berhasil! ${totalBerhasil} data Questions ditambahkan/diperbarui.`);
       return 0; // Pastikan mengembalikan sesuatu
     } catch (error) {
       console.error("❌ Gagal push ke DB:", error);
@@ -208,7 +215,7 @@ async function seedUserQuestion() {
 
   try {
     const result = await prisma.user_questions.createMany({ data: newUserQuestions });
-    console.log("Berhasil! " + result.count + " data telah ditambahkan.");
+    console.log("Berhasil! " + result.count + " data UserQuestions ditambahkan.");
   } catch (e) {
     console.error("❌ Gagal push ke DB:", e);
     throw e;
@@ -217,10 +224,10 @@ async function seedUserQuestion() {
 async function main() {
   try {
     console.log("start seed in...", process.cwd());
-    await seedStudents();
-    // await seedQuestions();
+    // await seedStudents();
+    await seedQuestions();
     // await seedNewQuestions();
-    // await seedUserQuestion();
+    // await seedUserQuestion(); // riwayat pertanyaan yang berhasil dijawab
   } catch (error) {
     console.error(error);
   }

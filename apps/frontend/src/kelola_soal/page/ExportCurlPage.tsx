@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TypeBadge } from "@/components/shared";
-import { useAuth } from "@/context/MainContext";
+import { useAuth } from "@/hooks/useAuth";
 import { BACKEND_URL } from "@/constants";
 import type { Question } from "shared";
 

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/MainContext";
+import { useAuth } from "@/hooks/useAuth";
 import { TIME_LIMIT } from "@/constants";
 
 export default function HomePage() {
@@ -38,9 +38,10 @@ export default function HomePage() {
     <div className="pt-20 selectable">
       <Card className="max-w-3xl mx-auto mt-8">
         <CardHeader className="font-semibold text-center text-2xl">
-          Fase 2
+          Fase Public
         </CardHeader>
         <CardContent className="space-y-6">
+          <p>Login pakai google, akan dipasangkan akun dummy agar quiz dapat diakses. Save data ke backend akan di-<i>skip</i>.</p>
           <div className="space-y-2">
             <h3 className="font-bold">Seputar Quiz:</h3>
             <ol className="list-decimal list-inside space-y-1 text-sm">

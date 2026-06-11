@@ -1,10 +1,21 @@
 // MainContext.tsx
-import { TIME_LIMIT, BACKEND_URL, NOT_ANS_Q_IDS_STORAGE_KEY, SEED, ANS_Q_IDS_STORAGE_KEY } from "@/constants";
+import { TIME_LIMIT, BACKEND_URL, NOT_ANS_Q_IDS_STORAGE_KEY, SEED, ANS_Q_IDS_STORAGE_KEY, MODE } from "@/constants";
 import { normalizeQuestion, safeParse } from "@/lib/utils";
 import { NEW_ANS_Q_IDS_STORAGE_KEY, QUESTION_STORAGE_KEY } from "@/constants";
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Cipher, type Question } from "shared";
 import { toast } from "sonner";
+
+interface GoogleData {
+  email: string;
+  email_verified: boolean;
+  family_name: string;
+  given_name: string;
+  hd: string;
+  name: string;
+  picture: string;
+  sub: string;
+}
 
 interface UserProfile {
   id: number;
@@ -33,8 +44,6 @@ interface MainContextType {
   isScoreMax: boolean;
   setIsScoreMax: React.Dispatch<React.SetStateAction<boolean>>
 }
-
-const MainContext = createContext<MainContextType | undefined>(undefined);
 
 export function MainProvider({ children }: { children: ReactNode }) {
   const [questions, setQuestions] = useState<Question[]>(() => {
@@ -108,9 +117,11 @@ export function MainProvider({ children }: { children: ReactNode }) {
         if (!resQ.ok) throw new Error("Failed to fetch questions");
 
         const fetchedQ = await resQ.json();
+        console.log({ fetchedQ });
         localStorage.setItem(QUESTION_STORAGE_KEY, fetchedQ.data); // hex data
         const decodeQuestions = Cipher.decode(fetchedQ.data, import.meta.env.VITE_SEED);
         const normalized = safeParse(decodeQuestions, []).map(normalizeQuestion);
+        console.log({ normalized });
         setQuestions(normalized);
 
         // jika sudah ada di local storage
@@ -125,23 +136,36 @@ export function MainProvider({ children }: { children: ReactNode }) {
     init();
   }, []);
 
-  const handleLogin = async (googleData: any): Promise<UserProfile | undefined> => {
+  const handleLogin = async (googleData: GoogleData): Promise<UserProfile | undefined> => {
     try {
+      console.log(googleData);
+      let userData: UserProfile;
       // cari dari database
-      const email = encodeURIComponent(googleData.email);
-      // console.log("email:", email);
-      const res = await fetch(`${BACKEND_URL}/api/users/by-email?email=${email}`);
-      if (!res.ok) throw new Error("Failed to fetch user");
+      if (MODE === 'public') {
+        userData = {
+          id: 1,
+          name: googleData.given_name,
+          email: googleData.email,
+          picture: googleData.picture,
+          score: 0,
+          score_max: 100 // agar tidak sering
+        };
+      } else {
+        const email = encodeURIComponent(googleData.email);
+        // console.log("email:", email);
+        const res = await fetch(`${BACKEND_URL}/api/users/by-email?email=${email}`);
+        if (!res.ok) throw new Error("Failed to fetch user");
 
-      // Ambil sebagai text dulu untuk memastikan ada isinya
-      const text = await res.text();
+        // Ambil sebagai text dulu untuk memastikan ada isinya
+        const text = await res.text();
 
-      if (!text || text.trim().length === 0) {
-        toast.error(`Email ${googleData.email} tidak terdaftar!\nPastikan menggunakan email classroom kelas PPWL 2026.`, { duration: 5000, icon: "🚫" });
-        return;
+        if (!text || text.trim().length === 0) {
+          toast.error(`Email ${googleData.email} tidak terdaftar!\nPastikan menggunakan email classroom kelas PPWL 2026.`, { duration: 5000, icon: "🚫" });
+          return;
+        }
+
+        userData = JSON.parse(text);
       }
-
-      const userData: UserProfile = JSON.parse(text);
 
       if (userData.score > 0) toast("Riwayat Score terdeteksi");
       setUserState(userData);
@@ -263,8 +287,4 @@ export function MainProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export const useAuth = () => {
-  const context = useContext(MainContext);
-  if (!context) throw new Error("useAuth must be used within MainProvider");
-  return context;
-};
+export const MainContext = createContext<MainContextType | undefined>(undefined);

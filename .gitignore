@@ -48,3 +48,4 @@ soal.md
 */**/.sql
 */**/data-*.json
 apps/backend/dev.db
+apps/backend/prisma/migrations/
