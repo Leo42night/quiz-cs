@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TypeBadge } from "@/components/shared";
-import { useAuth } from "@/hooks/useAuth";
+import { useMain } from "@/hooks/useMain";
 import { BACKEND_URL } from "@/constants";
 import type { Question } from "shared";
 
 export default function ExportCurlPage() {
-  const { questions } = useAuth();
+  const { questions } = useMain();
   const [baseUrl, setBaseUrl] = useState(BACKEND_URL || "http://localhost:3000");
   const [copied, setCopied] = useState<number | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);

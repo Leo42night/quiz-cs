@@ -5,12 +5,12 @@ import TestQuestion from './pages/TestQuestion';
 
 const router = createBrowserRouter([
     {
-        path: "/",
-        element: <Navigate to="/1" replace />,
+        path: "/test-question/:id",
+        element: <TestQuestion />,
     },
     {
-        path: "/:id",
-        element: <TestQuestion />,
+        path: "*",
+        element: <Navigate to="/test-question/1" replace />,
     },
 ]);
 

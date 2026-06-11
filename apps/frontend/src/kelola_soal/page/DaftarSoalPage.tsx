@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useMain } from "@/hooks/useMain";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -76,7 +76,7 @@ export default function DaftarSoalPage() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">(stored.sortDir || "desc");
 
   const baseUrl = BACKEND_URL || "http://localhost:3000"
-  const { questions, setQuestions } = useAuth();
+  const { questions, setQuestions } = useMain();
   const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<number | null>(null);

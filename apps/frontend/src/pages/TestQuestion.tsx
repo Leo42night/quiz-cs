@@ -15,11 +15,11 @@ import { submitAnswer } from "@/lib/submitAnswer"
 import { saveQuestionsToLocal, validateAnswer } from "@/lib/utils"
 import { BACKEND_URL, CATEGORIES, HL_LANGUAGES, LANGUAGES } from "@/constants"
 import { DifficultyStars, TypeBadge } from "@/components/shared"
-import { useAuth } from "@/hooks/useAuth"
+import { useMain } from "@/hooks/useMain"
 import { RotateCw } from "lucide-react"
 
 export default function TestQuestion() {
-  const { questions, setQuestions } = useAuth();
+  const { questions, setQuestions } = useMain();
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
@@ -38,7 +38,7 @@ export default function TestQuestion() {
     if (id) {
       const targetId = Number(id);
       const q = questions.find((q) => q.id === targetId) || null;
-      console.log({ q })
+      // console.log({ q })
       return q;
     }
 

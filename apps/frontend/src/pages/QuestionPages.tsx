@@ -13,7 +13,7 @@ const QuizMulti = lazy(() => import("@/components/QuizMulti"));
 const CodeFill = lazy(() => import("@/components/CodeFill"));
 
 import { submitAnswer } from "@/lib/submitAnswer";
-import { useAuth } from "@/hooks/useAuth";
+import { useMain } from "@/hooks/useMain";
 import { ANS_Q_IDS_STORAGE_KEY, NOT_ANS_Q_IDS_STORAGE_KEY, HL_LANGUAGES, CATEGORIES, LANGUAGES } from "@/constants";
 import { safeParse, validateAnswer } from "@/lib/utils";
 import { DifficultyStars, TypeBadge } from "@/components/shared";
@@ -32,7 +32,7 @@ export default function QuestionPage() {
     setIsScoreMax,
     notAnsweredQuestionIds,
     setNotAnsweredQuestionIds
-  } = useAuth();
+  } = useMain();
 
   const navigate = useNavigate();
   const [answer, setAnswer] = useState<any>(null);
@@ -92,7 +92,7 @@ export default function QuestionPage() {
   const getNextQuestion = (currentNotAnswered: number[]) => {
     if (currentNotAnswered.length === 0) {
       setActiveQuestion(null);
-      navigate("/"); // Kembali ke home jika habis
+      navigate("/"); // Kembali ke home jika question habis
       return;
     }
     const randomId = currentNotAnswered[Math.floor(Math.random() * currentNotAnswered.length)];

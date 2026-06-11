@@ -2,10 +2,10 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { BookOpen, PlusCircle, Terminal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/useAuth";
+import { useMain } from "@/hooks/useMain";
 
 export default function KelolaSoalLayout() {
-  const { questions } = useAuth();
+  const { questions } = useMain();
 
   return (
     <div className="min-h-screen bg-background">

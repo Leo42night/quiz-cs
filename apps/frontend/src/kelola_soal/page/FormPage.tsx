@@ -8,7 +8,7 @@ import FormTipe2 from "@/kelola_soal/FormTipe2";
 import FormTipe3 from "@/kelola_soal/FormTipe3";
 import FormTipe4 from "@/kelola_soal/FormTipe4";
 import { saveQuestionToDB, updateQuestionToDB } from "../utils";
-import { useAuth } from "@/hooks/useAuth";
+import { useMain } from "@/hooks/useMain";
 import type { Question, QuestionType } from "shared";
 import { saveQuestionsToLocal } from "@/lib/utils";
 
@@ -43,7 +43,7 @@ export default function FormPage() {
   const { id } = useParams<{ id: string }>();
   const isNew = !id;
   const navigate = useNavigate();
-  const { questions, setQuestions } = useAuth();
+  const { questions, setQuestions } = useMain();
 
   const editingQuestion = isNew ? null : (questions.find((q) => String(q.id) === id) ?? null);
 

@@ -15,12 +15,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Save, Timer } from "lucide-react";
-import { BACKEND_URL } from "@/constants";
+import { BACKEND_URL, MODE } from "@/constants";
 import { TIME_LIMIT } from "@/constants";
-import { useAuth } from "@/hooks/useAuth";
+import { useMain } from "@/hooks/useMain";
 
 export function Navbar() {
   const {
@@ -32,11 +32,24 @@ export function Navbar() {
     activeQuestion,
     timeLimit,
     isScoreMax
-  } = useAuth();
+  } = useMain();
+  const [activeToastId, setActiveToastId] = useState<null | string>(null);
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [loadingSaveScore, setLoadingSaveScore] = useState(false);
   const [openScore, setOpenScore] = useState(false);
   const [openScoreMax, setOpenScoreMax] = useState(false);
+
+  // Warna timer berubah sesuai sisa waktu
+  const timerColor =
+    timeLimit <= Math.floor(TIME_LIMIT / 3) ? "text-red-500" :
+      timeLimit <= Math.floor(TIME_LIMIT * 2 / 3) ? "text-yellow-500" :
+        "text-green-500";
+
+  useEffect(() => {
+    if (activeToastId) {
+      toast.dismiss(activeToastId);
+    }
+  }, [activeQuestion]);
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -73,20 +86,22 @@ export function Navbar() {
     try {
       if (!user) return toast.error("Tidak ada user");
       // Simpan score user
-      const resScore = await fetch(`${BACKEND_URL}/api/users/${user.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ score: user.score }),
-      });
-      if (!resScore.ok) throw new Error(`Score gagal disimpan: ${resScore.status}`);
+      if (MODE !== 'public') {
+        const resScore = await fetch(`${BACKEND_URL}/api/users/${user.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ score: user.score }),
+        });
+        if (!resScore.ok) throw new Error(`Score gagal disimpan: ${resScore.status}`);
 
-      // Simpan answered question IDs
-      const resIds = await fetch(`${BACKEND_URL}/api/users/${user.id}/question-ids`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ new_answered_question_ids: newAnsweredQuestionIds }),
-      });
-      if (!resIds.ok) throw new Error(`Jawaban quiz gagal disimpan: ${resIds.status}`);
+        // Simpan answered question IDs
+        const resIds = await fetch(`${BACKEND_URL}/api/users/${user.id}/question-ids`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ new_answered_question_ids: newAnsweredQuestionIds }),
+        });
+        if (!resIds.ok) throw new Error(`Jawaban quiz gagal disimpan: ${resIds.status}`);
+      }
 
       toast.success(`Score & ${newAnsweredQuestionIds.length} jawaban berhasil disimpan`, {
         duration: 1000
@@ -101,11 +116,24 @@ export function Navbar() {
     }
   };
 
-  // Warna timer berubah sesuai sisa waktu
-  const timerColor =
-    timeLimit <= Math.floor(TIME_LIMIT / 3) ? "text-red-500" :
-      timeLimit <= Math.floor(TIME_LIMIT * 2 / 3) ? "text-yellow-500" :
-        "text-green-500";
+  const showAnswer = () => {
+    if (!activeQuestion) return;
+
+    const toastId = `question-hint-${activeQuestion.id}`;
+
+    const message = Array.isArray(activeQuestion.correct_answer)
+      ? JSON.stringify(activeQuestion.correct_answer)
+      : String(activeQuestion.correct_answer);
+    // console.log(message)
+    toast.info(message, {
+      id: toastId,
+      position: "top-center",
+      duration: Infinity,
+      closeButton: true
+    });
+
+    setActiveToastId(toastId);
+  };
 
   return (
     <nav className="border-b bg-background/95 px-2 lg:px-4 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -117,14 +145,20 @@ export function Navbar() {
         </div>
 
         {/* Timer */}
-        <div className="flex items-center gap-1 text-sm font-medium min-w-15 justify-center">
-          {activeQuestion && (
-            <>
-              <Timer className={`w-4 h-4 ${timerColor}`} />
-              <span className={`font-mono font-bold text-lg ${timerColor}`}>{timeLimit}s</span>
-            </>
-          )}
-        </div>
+        {MODE === 'public' ? (
+          <Button type="button" variant="secondary" onClick={showAnswer}>
+            Lihat Jawaban
+          </Button>
+        ) : (
+          <div className="flex items-center gap-1 text-sm font-medium min-w-15 justify-center">
+            {activeQuestion && (
+              <>
+                <Timer className={`w-4 h-4 ${timerColor}`} />
+                <span className={`font-mono font-bold text-lg ${timerColor}`}>{timeLimit}s</span>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Auth Section */}
         <div className="flex items-center">

@@ -142,13 +142,15 @@ export function MainProvider({ children }: { children: ReactNode }) {
       let userData: UserProfile;
       // cari dari database
       if (MODE === 'public') {
+        const maxScore = 100;
+        toast.info(`Mode Public, diberi max score ${maxScore}`)
         userData = {
           id: 1,
-          name: googleData.given_name,
+          name: googleData.given_name + " (Public)",
           email: googleData.email,
           picture: googleData.picture,
           score: 0,
-          score_max: 100 // agar tidak sering
+          score_max: maxScore // agar tidak sering
         };
       } else {
         const email = encodeURIComponent(googleData.email);
@@ -191,14 +193,16 @@ export function MainProvider({ children }: { children: ReactNode }) {
     // 1. Bersihkan interval yang mungkin masih nyangkut dari render sebelumnya
     if (intervalRef.current) clearInterval(intervalRef.current);
 
-    // 2. Jika tidak ada pertanyaan aktif, reset waktu dan berhenti
+    if (MODE === 'public') return; // ← bekukan timer
+
+    // 3. Set waktu awal untuk berhenti atau ada pertanyaan baru
+    setTimeLimit(TIME_LIMIT);
+
+    // 2. Jika tidak ada pertanyaan aktif,  berhenti
     if (!activeQuestion) {
-      setTimeLimit(TIME_LIMIT);
       return;
     }
 
-    // 3. Set waktu awal untuk pertanyaan baru
-    setTimeLimit(TIME_LIMIT);
 
     // Gunakan flag internal untuk memastikan fungsi 'run' hanya dipanggil sekali per siklus
     let isFinished = false;
@@ -222,7 +226,7 @@ export function MainProvider({ children }: { children: ReactNode }) {
             if (onTimeUpRef.current) {
               await onTimeUpRef.current(); // submit jawaban (jika ada)
             }
-            setActiveQuestion(null);
+            setActiveQuestion(null); // question page deteksi jika kosong maka redirect home 
 
             // Toast aman di sini karena isFinished mengunci eksekusi ganda
             toast.warning("Waktu habis!", { id: "time-up", duration: 1000 });

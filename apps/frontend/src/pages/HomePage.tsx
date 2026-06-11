@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
+import { useMain } from "@/hooks/useMain";
 import { TIME_LIMIT } from "@/constants";
 
 export default function HomePage() {
-  const { user, questions, activeQuestion, setActiveQuestion, notAnsweredQuestionIds } = useAuth();
+  const { user, questions, activeQuestion, setActiveQuestion, notAnsweredQuestionIds } = useMain();
   // console.log("notAnsweredQuestionIds", notAnsweredQuestionIds);
   // console.log("questions", questions);
   const navigate = useNavigate();
