@@ -1,5 +1,5 @@
 import { defineConfig, loadEnv } from 'vite'
-import { visualizer } from "rollup-plugin-visualizer";
+// import { visualizer } from "rollup-plugin-visualizer";
 import react from '@vitejs/plugin-react'
 import tailwindcss from "@tailwindcss/vite"
 import path from "path"
@@ -20,8 +20,8 @@ export default defineConfig(({ mode }) => {
 
   const check = env.VITE_CHECK;
   if (!check) throw new Error("env is not detected");
-  console.log("[LOG] Berhasil env:", check)
-
+  console.log(`[LOG] Berhasil env (isProduction ${isProduction}):`, check)
+  console.log(`[LOG] process.env.NODE_ENV: ${process.env.NODE_ENV}`);
   return {
     // Sekarang Anda bisa menggunakan variabel env di sini jika butuh, 
     // misalnya untuk mengganti port secara dinamis:
@@ -74,11 +74,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
-      visualizer({
-        open: true,
-        filename: "bundle-analysis.html",
-        gzipSize: true,
-      }),
+      // visualizer() as PluginOption,
     ],
     resolve: {
       alias: { '@': path.resolve(__dirname, './src') }
