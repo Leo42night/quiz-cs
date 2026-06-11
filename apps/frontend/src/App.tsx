@@ -41,7 +41,7 @@ const router = createBrowserRouter([
   {
     // tanda ? berati opsional
     path: "/test-question/:id?",
-    element: isDevelopment && <TestQuestion />
+    element: isDevelopment ? <TestQuestion /> : <Navigate to="/" replace />,
   },
   {
     path: "/*",

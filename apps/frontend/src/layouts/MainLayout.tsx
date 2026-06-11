@@ -11,7 +11,7 @@ export default function MainLayout() {
         <Outlet />
       </main>
       <footer className="hidden md:inline-block p-4 border-t text-center text-sm">
-        © 2026 - Praktikum Pemrogragam Web Lanjut (Asdos | Sisfo UNTAN)
+        V1.5 © 2026 - Praktikum Pemrogragam Web Lanjut (Asdos | Sisfo UNTAN)
         <Button variant="ghost" size="icon" className="ml-2 h-6 w-6" asChild>
           <a href="https://github.com/Leo42night/quiz-cs" target="_blank" rel="noopener noreferrer" className="inline-flex items-center ml-2 opacity-70 hover:opacity-100 transition-opacity">
             <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
