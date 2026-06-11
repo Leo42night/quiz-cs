@@ -139,10 +139,10 @@ export function Navbar() {
     <nav className="border-b bg-background/95 px-2 lg:px-4 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container flex h-16 items-center justify-between mx-auto">
         {/* Logo */}
-        <div className="flex items-center gap-2 font-bold text-xl">
-          <span className="text-[10px] sm:text-xl bg-primary text-primary-foreground px-2 py-1 rounded-md">PPWL</span>
-          <span className="hidden md:inline">2026</span>
-        </div>
+        <a href="/" className="flex items-center gap-2 font-bold text-xl">
+          <span className="text-[10px] sm:text-xl bg-primary text-primary-foreground px-2 py-1 rounded-md">QUIZ</span>
+          <span className="hidden md:inline">CS</span>
+        </a>
 
         {/* Timer */}
         {MODE === 'public' ? (

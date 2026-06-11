@@ -29,7 +29,7 @@ const router = createBrowserRouter([
   },
   // Rute Kelola Soal dengan Proteksi Environment
   {
-    path: "kelola-soal",
+    path: "/kelola-soal",
     element: isDevelopment ? <KelolaSoalLayout /> : <Navigate to="/" replace />,
     children: [
       { index: true, element: <DaftarSoalPage /> },
@@ -40,16 +40,11 @@ const router = createBrowserRouter([
   },
   {
     // tanda ? berati opsional
-    path: "test-question/:id?",
-    element: isDevelopment ? (
-      <TestQuestion />
-    ) : (
-      // Jika bukan production, arahkan ke Home atau tampilkan 404
-      <Navigate to="/" replace />
-    ),
+    path: "/test-question/:id?",
+    element: isDevelopment && <TestQuestion />
   },
   {
-    path: "*",
+    path: "/*",
     element: <Navigate to="/" replace />
   }
 ]);
