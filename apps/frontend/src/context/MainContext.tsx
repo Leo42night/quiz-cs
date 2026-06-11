@@ -145,7 +145,7 @@ export function MainProvider({ children }: { children: ReactNode }) {
         const maxScore = 100;
         toast.info(`Mode Public, diberi max score ${maxScore}`)
         userData = {
-          id: 1,
+          id: 404, // dummy id 
           name: googleData.given_name + " (Public)",
           email: googleData.email,
           picture: googleData.picture,
